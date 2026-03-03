@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    BrainCircuit, Code2, PlayCircle, Sparkles, TrendingUp,
-    BookOpen, Target, Users, Star, Award, ChevronRight,
-    Github, Twitter, Linkedin, Zap, Shield, Cpu, Globe,
-    Rocket, GraduationCap, Trophy, BarChart, Layers, GitBranch, Box
+    Code2, PlayCircle, BarChart, BookOpen, Users,
+    ChevronRight, Github, Twitter, Linkedin, Zap,
+    Shield, Cpu, Globe, Rocket, Trophy, Layers, GitBranch, Box,
+    Terminal, Library, CheckCircle2
 } from "lucide-react";
 
 import { Badge } from "../components/ui/badge";
@@ -12,7 +12,6 @@ import { Button } from "../components/ui/button";
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "../components/ui/card";
@@ -49,45 +48,37 @@ const Testimonials = () => {
     const testimonials = [
         {
             name: "Alex Chen",
-            role: "CS Student",
-            content: "The visualizer helped me understand recursion in a way textbooks never could. Got into Google summer internship!",
-            avatar: "AC",
-            rating: 5
+            role: "Software Engineer",
+            content: "The visualizer helped me understand complex pointer logic in a way textbooks never could. Essential for interview prep.",
+            avatar: "AC"
         },
         {
             name: "Sarah Johnson",
-            role: "Self-taught Developer",
-            content: "From zero to passing Amazon interviews in 4 months. The AI explanations are pure gold.",
-            avatar: "SJ",
-            rating: 5
+            role: "Frontend Developer",
+            content: "A sleek, no-nonsense environment for practicing DSA. The step-by-step execution view is incredibly helpful.",
+            avatar: "SJ"
         },
         {
             name: "Mike Rodriguez",
-            role: "Bootcamp Graduate",
-            content: "Finally, a tool that doesn't just give answers but teaches the 'why'. Landed my first dev job!",
-            avatar: "MR",
-            rating: 5
+            role: "CS Student",
+            content: "Finally, a tool that lets me write real code and instantly see the memory and state changes. Highly recommended.",
+            avatar: "MR"
         }
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             {testimonials.map((t, i) => (
-                <Card key={i} className="bg-white/5 border-white/10 hover:border-purple-500/30 transition-all">
-                    <CardContent className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                            {[...Array(t.rating)].map((_, i) => (
-                                <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
-                            ))}
-                        </div>
-                        <p className="text-sm text-gray-300 mb-4">"{t.content}"</p>
+                <Card key={i} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-all rounded-xl shadow-none">
+                    <CardContent className="p-8">
+                        <p className="text-sm text-zinc-400 mb-6 leading-relaxed">"{t.content}"</p>
                         <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600">
-                                <AvatarFallback>{t.avatar}</AvatarFallback>
+                            <Avatar className="h-9 w-9 bg-zinc-800 border border-zinc-700">
+                                <AvatarFallback className="text-zinc-300 text-xs font-semibold">{t.avatar}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="text-sm font-medium">{t.name}</p>
-                                <p className="text-xs text-muted-foreground">{t.role}</p>
+                                <p className="text-sm font-medium text-zinc-200">{t.name}</p>
+                                <p className="text-xs text-zinc-500">{t.role}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -104,64 +95,60 @@ const FeatureShowcase = () => {
 
     const features = {
         visualize: {
-            title: "Watch algorithms come alive",
-            description: "Step through every array access, pointer move, and variable change in real-time",
-            icon: <PlayCircle className="w-6 h-6 text-pink-400" />,
-            image: "/visualizer-demo.gif",
-            stats: ["30+ algorithms", "2D/1D support", "Color-coded pointers"]
+            title: "Algorithm Visualization",
+            description: "Step through array accesses, pointer movements, and structural changes in real-time to debug and understand deep logic.",
+            icon: <PlayCircle className="w-5 h-5 text-zinc-100" />,
+            stats: ["30+ Built-in Algorithms", "2D Grid Support", "Pointer Tracking"]
         },
         code: {
-            title: "Professional C++ environment",
-            description: "VS Code-like editor with syntax highlighting, auto-complete, and real compilation",
-            icon: <Code2 className="w-6 h-6 text-cyan-400" />,
-            image: "/editor-demo.gif",
-            stats: ["Judge0 integration", "Error highlighting", "Multiple tabs"]
+            title: "Professional Workspace",
+            description: "A robust editor equipped with syntax highlighting, auto-complete, and an isolated execution environment.",
+            icon: <Terminal className="w-5 h-5 text-zinc-100" />,
+            stats: ["Real C++ Compilation", "Error Highlighting", "No Sandbox Limitations"]
         },
-        ai: {
-            title: "AI tutor in your pocket",
-            description: "Get hints, explanations, and full solutions with context-aware AI assistance",
-            icon: <BrainCircuit className="w-6 h-6 text-purple-400" />,
-            image: "/ai-demo.gif",
-            stats: ["Gemini AI", "Step-by-step", "Learning mode"]
+        analytics: {
+            title: "Performance Insights",
+            description: "Track your problem-solving speed, success rate, and algorithmic complexity tradeoffs across your learning journey.",
+            icon: <BarChart className="w-5 h-5 text-zinc-100" />,
+            stats: ["Time/Space Tracking", "Progress Metrics", "Difficulty Curves"]
         }
     };
 
     return (
-        <Card className="bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 border-white/10">
-            <CardContent className="p-8">
-                <Tabs value={activeFeature} onValueChange={setActiveFeature} className="w-full">
-                    <TabsList className="w-full bg-white/5 border border-white/10 mb-6">
-                        <TabsTrigger value="visualize" className="flex-1 gap-2">
-                            <PlayCircle size={16} /> Visualize
-                        </TabsTrigger>
-                        <TabsTrigger value="code" className="flex-1 gap-2">
-                            <Code2 size={16} /> Code
-                        </TabsTrigger>
-                        <TabsTrigger value="ai" className="flex-1 gap-2">
-                            <BrainCircuit size={16} /> AI Learn
-                        </TabsTrigger>
-                    </TabsList>
+        <Card className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden shadow-none">
+            <CardContent className="p-0">
+                <Tabs value={activeFeature} onValueChange={setActiveFeature} className="w-full flex flex-col md:flex-row min-h-[350px]">
+                    <div className="md:w-1/3 bg-zinc-950 border-b md:border-b-0 md:border-r border-zinc-800 p-6 flex flex-col gap-2">
+                        <TabsList className="flex flex-col h-auto bg-transparent items-start space-y-2 p-0">
+                            {Object.entries(features).map(([key, feature]) => (
+                                <TabsTrigger
+                                    key={key}
+                                    value={key}
+                                    className="w-full justify-start gap-3 px-4 py-3 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 transition-all font-medium"
+                                >
+                                    {feature.icon} {feature.title}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </div>
 
-                    <div className="grid md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                {features[activeFeature].icon}
-                                <h3 className="text-2xl font-bold">{features[activeFeature].title}</h3>
-                            </div>
-                            <p className="text-muted-foreground mb-6">{features[activeFeature].description}</p>
-                            <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="md:w-2/3 p-8 md:p-12 flex flex-col justify-center">
+                        <div className="max-w-xl">
+                            <h3 className="text-2xl font-bold text-zinc-100 mb-3">{features[activeFeature].title}</h3>
+                            <p className="text-zinc-400 mb-8 leading-relaxed text-base">{features[activeFeature].description}</p>
+
+                            <div className="flex flex-col gap-3 mb-8">
                                 {features[activeFeature].stats.map((stat, i) => (
-                                    <Badge key={i} variant="outline" className="border-cyan-500/30">
+                                    <div key={i} className="flex items-center gap-2 text-sm text-zinc-300">
+                                        <CheckCircle2 size={16} className="text-zinc-500" />
                                         {stat}
-                                    </Badge>
+                                    </div>
                                 ))}
                             </div>
-                            <Button onClick={() => navigate("/hub")} className="gap-2">
+
+                            <Button onClick={() => navigate("/hub")} className="gap-2 bg-zinc-100 text-zinc-950 hover:bg-white rounded-md font-medium px-6">
                                 Try it now <ChevronRight size={16} />
                             </Button>
-                        </div>
-                        <div className="bg-black/40 rounded-lg p-4 border border-white/10 h-48 flex items-center justify-center">
-                            <span className="text-gray-500 text-sm">Interactive demo preview</span>
                         </div>
                     </div>
                 </Tabs>
@@ -173,46 +160,38 @@ const FeatureShowcase = () => {
 // Stats section
 const Stats = () => {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
-            <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                    <Users className="w-8 h-8 mx-auto mb-2 text-cyan-400" />
-                    <div className="text-2xl font-bold">
-                        <AnimatedCounter end={5000} suffix="+" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Active Learners</p>
-                </CardContent>
-            </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+            <div className="text-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30">
+                <Users className="w-6 h-6 mx-auto mb-3 text-zinc-400" />
+                <div className="text-3xl font-bold text-zinc-100 tracking-tight">
+                    <AnimatedCounter end={5000} suffix="+" />
+                </div>
+                <p className="text-sm text-zinc-500 mt-1 font-medium">Active Engineers</p>
+            </div>
 
-            <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                    <BookOpen className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-                    <div className="text-2xl font-bold">
-                        <AnimatedCounter end={30} suffix="+" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">DSA Problems</p>
-                </CardContent>
-            </Card>
+            <div className="text-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30">
+                <Library className="w-6 h-6 mx-auto mb-3 text-zinc-400" />
+                <div className="text-3xl font-bold text-zinc-100 tracking-tight">
+                    <AnimatedCounter end={30} suffix="+" />
+                </div>
+                <p className="text-sm text-zinc-500 mt-1 font-medium">Core Problems</p>
+            </div>
 
-            <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                    <Rocket className="w-8 h-8 mx-auto mb-2 text-pink-400" />
-                    <div className="text-2xl font-bold">
-                        <AnimatedCounter end={10000} suffix="+" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Visualizations</p>
-                </CardContent>
-            </Card>
+            <div className="text-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30">
+                <PlayCircle className="w-6 h-6 mx-auto mb-3 text-zinc-400" />
+                <div className="text-3xl font-bold text-zinc-100 tracking-tight">
+                    <AnimatedCounter end={10} suffix="k+" />
+                </div>
+                <p className="text-sm text-zinc-500 mt-1 font-medium">Visualizations Run</p>
+            </div>
 
-            <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                    <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
-                    <div className="text-2xl font-bold">
-                        <AnimatedCounter end={89} suffix="%" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Success Rate</p>
-                </CardContent>
-            </Card>
+            <div className="text-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30">
+                <Trophy className="w-6 h-6 mx-auto mb-3 text-zinc-400" />
+                <div className="text-3xl font-bold text-zinc-100 tracking-tight">
+                    <AnimatedCounter end={94} suffix="%" />
+                </div>
+                <p className="text-sm text-zinc-500 mt-1 font-medium">Completion Rate</p>
+            </div>
         </div>
     );
 };
@@ -220,24 +199,24 @@ const Stats = () => {
 // Problem categories preview
 const CategoryPreview = () => {
     const categories = [
-        { name: "Arrays", count: 8, color: "from-cyan-500 to-blue-500", icon: <Layers size={20} /> },
-        { name: "Dynamic Programming", count: 6, color: "from-purple-500 to-pink-500", icon: <BrainCircuit size={20} /> },
-        { name: "Trees", count: 5, color: "from-green-500 to-emerald-500", icon: <GitBranch size={20} /> },
-        { name: "Graphs", count: 4, color: "from-yellow-500 to-orange-500", icon: <Globe size={20} /> },
+        { name: "Arrays & Strings", count: 8, icon: <Layers size={18} /> },
+        { name: "Dynamic Programming", count: 6, icon: <Box size={18} /> },
+        { name: "Trees & Graphs", count: 9, icon: <GitBranch size={18} /> },
+        { name: "Advanced Algorithms", count: 7, icon: <Terminal size={18} /> },
     ];
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
             {categories.map((cat, i) => (
-                <Card key={i} className="bg-white/5 border-white/10 hover:border-cyan-400/30 transition-all cursor-pointer group">
-                    <CardContent className="p-4">
-                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${cat.color} mb-3 flex items-center justify-center text-white group-hover:scale-110 transition-transform`}>
-                            {cat.icon}
-                        </div>
-                        <h4 className="font-medium">{cat.name}</h4>
-                        <p className="text-xs text-muted-foreground">{cat.count} problems</p>
-                    </CardContent>
-                </Card>
+                <div key={i} className="bg-zinc-900 border border-zinc-800 hover:border-zinc-500 transition-colors p-5 rounded-xl cursor-pointer group flex flex-col justify-between h-32 text-left">
+                    <div className="text-zinc-400 group-hover:text-zinc-100 transition-colors">
+                        {cat.icon}
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-zinc-200 text-sm tracking-wide">{cat.name}</h4>
+                        <p className="text-xs text-zinc-500 mt-1">{cat.count} problems</p>
+                    </div>
+                </div>
             ))}
         </div>
     );
@@ -248,150 +227,114 @@ export default function Home() {
     const navigate = useNavigate();
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-slate-950">
-            {/* Subtle background grid */}
-            <div className="pointer-events-none absolute inset-0 -z-10">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.18),_transparent_55%)]" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:60px_60px] opacity-30" />
-            </div>
+        <div className="relative min-h-screen bg-black text-zinc-300 font-sans selection:bg-zinc-800 selection:text-white pb-20">
+            {/* Extremely subtle grid background */}
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-            <div className="container max-w-6xl py-10 md:py-16">
+            <div className="container max-w-6xl mx-auto px-6 py-16 md:py-24">
                 {/* Hero section */}
-                <div className="grid gap-10 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.1fr)] items-center">
-                    {/* Left: text */}
-                    <div className="relative">
-                        {/* Tagline badge */}
-                        <Badge
-                            variant="outline"
-                            className="mb-4 inline-flex items-center gap-1 rounded-full border-slate-600 bg-slate-900/70 px-3 py-1 text-[11px] font-medium text-slate-200"
+                <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-20">
+                    <Badge
+                        variant="outline"
+                        className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold tracking-wide text-zinc-300 uppercase"
+                    >
+                        <Code2 size={14} className="text-zinc-400" />
+                        Professional DSA Environment
+                    </Badge>
+
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight">
+                        Master Algorithms via <br />
+                        <span className="text-zinc-400">Real-Time Visualization</span>
+                    </h1>
+
+                    <p className="text-lg text-zinc-400 leading-relaxed mb-10 max-w-2xl">
+                        A clean, structured workspace tailored for engineers. Write C++ solutions, completely isolate execution logic, and step through every array transformation and pointer swap visually.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <Button
+                            size="lg"
+                            onClick={() => navigate("/hub")}
+                            className="bg-white hover:bg-zinc-200 text-zinc-950 px-8 h-12 rounded-lg font-bold text-sm tracking-wide"
                         >
-                            <Sparkles size={14} className="text-slate-300" />
-                            Structured DSA practice in C++
-                        </Badge>
-
-                        {/* Main heading */}
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 font-[Outfit] text-slate-50">
-                            A focused way to
-                            <span className="block bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-                                get good at DSA
-                            </span>
-                        </h1>
-
-                        {/* Subheading */}
-                        <p className="text-base md:text-lg text-slate-300 max-w-xl leading-relaxed">
-                            Work through a curated set of interview problems in a clean, predictable workspace.
-                            Write C++ solutions, step through your code, and see exactly how each algorithm behaves.
-                        </p>
-
-                        {/* CTA buttons */}
-                        <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                            <Button
-                                size="lg"
-                                onClick={() => navigate("/hub")}
-                                className="bg-slate-100 hover:bg-slate-200 text-base px-7 h-11 group text-slate-900 rounded-full font-semibold shadow-sm"
-                            >
-                                Start practicing
-                                <Rocket size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="border-slate-600 bg-transparent hover:bg-slate-900/60 text-base px-7 h-11 rounded-full font-semibold text-slate-100"
-                                onClick={() => {
-                                    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
-                                }}
-                            >
-                                Explore the workspace
-                                <ChevronRight size={18} className="ml-2" />
-                            </Button>
-                        </div>
-
-                        {/* Trust badges */}
-                        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400 font-medium">
-                            <span className="flex items-center gap-1">
-                                <Zap size={14} className="text-yellow-400" /> No sign-up required
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <Shield size={14} className="text-emerald-400" /> Free to use
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <Cpu size={14} className="text-cyan-400" /> Judge0-powered C++ runner
-                            </span>
-                        </div>
+                            Open the Hub
+                        </Button>
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="border-zinc-800 bg-transparent hover:bg-zinc-900 hover:text-white px-8 h-12 rounded-lg font-semibold text-sm tracking-wide text-zinc-300"
+                            onClick={() => {
+                                document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+                            }}
+                        >
+                            Explore Features
+                        </Button>
                     </div>
 
-                    {/* Right: product preview */}
-                    <div className="relative">
-                        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-cyan-500/40 via-purple-500/30 to-pink-500/30 blur-2xl opacity-70" />
-                        <Card className="relative bg-slate-900/80 border-slate-700/70 rounded-2xl shadow-2xl overflow-hidden">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                                <div className="flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    <CardTitle className="text-sm font-semibold text-slate-100">
-                                        Workspace · Two Sum.cpp
-                                    </CardTitle>
-                                </div>
-                                <Badge variant="outline" className="border-cyan-500/40 text-[10px] text-cyan-200 bg-cyan-500/10">
-                                    Live visualizer
-                                </Badge>
-                            </CardHeader>
-                            <CardContent className="grid gap-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-                                {/* Mini code editor */}
-                                <div className="rounded-lg border border-slate-700/70 bg-slate-950/70 p-3">
-                                    <div className="mb-2 flex items-center justify-between text-[10px] text-slate-400">
-                                        <span className="px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-200">C++ · Sliding Window</span>
-                                        <span className="flex items-center gap-1 text-emerald-300">
-                                            <PlayCircle size={12} /> Visualize
-                                        </span>
-                                    </div>
-                                    <pre className="text-[11px] leading-5 font-mono text-slate-100 overflow-hidden">
-{`int lengthOfLongestSubstring(string s) {
-    vector<int> last(256, -1);
-    int left = 0, best = 0;
+                    <div className="mt-10 flex flex-wrap justify-center items-center gap-x-8 gap-y-3 text-xs text-zinc-500 font-medium">
+                        <span className="flex items-center gap-2">
+                            <Zap size={14} /> Zero setup required
+                        </span>
+                        <span className="flex items-center gap-2">
+                            <Shield size={14} /> Enterprise-grade editor
+                        </span>
+                        <span className="flex items-center gap-2">
+                            <Cpu size={14} /> Native execution engine
+                        </span>
+                    </div>
+                </div>
 
-    for (int right = 0; right < s.size(); right++) {
-        if (last[s[right]] >= left)
-            left = last[s[right]] + 1;
-        last[s[right]] = right;
-        best = max(best, right - left + 1);
-    }
-    return best;
-}`}
-                                    </pre>
-                                </div>
-
-                                {/* Mini visualizer */}
-                                <div className="rounded-lg border border-slate-700/70 bg-gradient-to-br from-slate-900 to-slate-950 p-3 flex flex-col gap-3">
-                                    <div className="flex items-center justify-between text-[10px] text-slate-300">
-                                        <span className="flex items-center gap-1">
-                                            <Box className="h-3 w-3 text-cyan-300" /> Step 3 / 8
-                                        </span>
-                                        <span className="flex items-center gap-1 text-cyan-300">
-                                            <BarChart size={12} /> O(n) · O(k)
-                                        </span>
+                {/* Dashboard Preview UI */}
+                <div className="relative mx-auto max-w-5xl rounded-xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden mb-24">
+                    <div className="flex items-center px-4 py-3 border-b border-zinc-800 bg-zinc-900">
+                        <div className="flex gap-2">
+                            <div className="w-3 h-3 rounded-full bg-zinc-700"></div>
+                            <div className="w-3 h-3 rounded-full bg-zinc-700"></div>
+                            <div className="w-3 h-3 rounded-full bg-zinc-700"></div>
+                        </div>
+                        <div className="mx-auto text-xs font-medium text-zinc-500 font-mono tracking-widest uppercase">
+                            Workspace · workspace.cpp
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-[1fr_1fr] divide-y md:divide-y-0 md:divide-x divide-zinc-800 min-h-[300px]">
+                        <div className="p-6 bg-zinc-950">
+                            <div className="font-mono text-sm text-zinc-400">
+                                <span className="text-pink-500">int</span> <span className="text-blue-400">lengthOfLongestSubstring</span>(<span className="text-pink-500">string</span> s) {'{'}
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-pink-500">vector</span>{'<'}int{'>'} last(<span className="text-purple-400">256</span>, -<span className="text-purple-400">1</span>);
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-pink-500">int</span> left = <span className="text-purple-400">0</span>, best = <span className="text-purple-400">0</span>;
+                                <br /><br />&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-pink-500">for</span> (<span className="text-pink-500">int</span> right = <span className="text-purple-400">0</span>; right {'<'} s.size(); right++) {'{'}
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-pink-500">if</span> (last[s[right]] {'>='} left)
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left = last[s[right]] + <span className="text-purple-400">1</span>;
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last[s[right]] = right;
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;best = <span className="text-blue-400">max</span>(best, right - left + <span className="text-purple-400">1</span>);
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;{'}'}
+                                <br />&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-pink-500">return</span> best;
+                                <br />{'}'}
+                            </div>
+                        </div>
+                        <div className="p-6 bg-zinc-900/50 flex flex-col justify-center gap-6">
+                            <div className="flex justify-between items-center text-xs text-zinc-500 font-medium tracking-wide uppercase">
+                                <span>Array State (Step 4)</span>
+                                <span>O(N) Time</span>
+                            </div>
+                            <div className="flex gap-2 text-sm font-mono font-bold">
+                                {["a", "b", "c", "a", "b", "b"].map((ch, i) => (
+                                    <div
+                                        key={i}
+                                        className={`flex-1 rounded py-3 text-center border ${i === 1 || i === 2 || i === 3
+                                                ? "border-zinc-300 bg-zinc-800 text-white"
+                                                : "border-zinc-800 text-zinc-600"
+                                            }`}
+                                    >
+                                        {ch}
                                     </div>
-                                    <div className="flex gap-1 justify-between text-[10px]">
-                                        {["a", "b", "c", "a", "b", "b"].map((ch, i) => (
-                                            <div
-                                                key={i}
-                                                className={`flex-1 rounded-md py-1 text-center border text-slate-100 ${
-                                                    i === 1 || i === 2
-                                                        ? "border-cyan-400/70 bg-cyan-500/20"
-                                                        : "border-slate-700 bg-slate-900"
-                                                }`}
-                                            >
-                                                {ch}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="text-[11px] text-slate-300 bg-slate-900/80 rounded-md px-2 py-2">
-                                        <span className="font-semibold text-cyan-300">Step 3:</span>{" "}
-                                        We extend the window while all characters are unique, updating{" "}
-                                        <code className="px-1 py-0.5 bg-slate-800 rounded">best</code> when needed.
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                ))}
+                            </div>
+                            <div className="text-sm text-zinc-400 bg-zinc-950 border border-zinc-800 rounded p-4">
+                                <span className="text-white font-semibold flex items-center gap-2 mb-1"><PlayCircle size={14} /> Execution Logs</span>
+                                Array window extended. Pointers: left=1, right=3. Max length updated to 3.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -399,94 +342,63 @@ export default function Home() {
                 <Stats />
 
                 {/* Feature showcase */}
-                <div id="features" className="mt-24">
+                <div id="features" className="mt-32">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-extrabold tracking-tight text-white mb-3">Platform Capabilities</h2>
+                        <p className="text-zinc-400 max-w-2xl mx-auto">Everything you need to deeply understand data structures, integrated into one seamless workflow.</p>
+                    </div>
                     <FeatureShowcase />
                 </div>
 
                 {/* Category preview */}
-                <div className="mt-24">
-                    <div className="text-center mb-8">
-                        <Badge variant="outline" className="border-cyan-500/30">Curriculum</Badge>
-                        <h2 className="text-3xl font-bold mt-3 font-[Outfit]">Top 30 DSA Problems</h2>
-                        <p className="text-muted-foreground mt-2">Most asked in 2025-2026 interviews</p>
-                    </div>
-                    <CategoryPreview />
-                    <div className="text-center mt-6">
-                        <Button variant="link" onClick={() => navigate("/hub")} className="text-cyan-400 font-semibold gap-1">
-                            View all problems <ChevronRight size={14} className="inline" />
+                <div className="mt-32">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-zinc-800 pb-4">
+                        <div>
+                            <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">Curated Problem Set</h2>
+                            <p className="text-zinc-400">The definitive list of fundamental algorithms.</p>
+                        </div>
+                        <Button variant="ghost" onClick={() => navigate("/hub")} className="text-zinc-300 hover:text-white hover:bg-zinc-900 hidden md:flex gap-2">
+                            View Curriculum <ChevronRight size={16} />
                         </Button>
                     </div>
+                    <CategoryPreview />
                 </div>
 
                 {/* Testimonials */}
-                <div className="mt-24">
-                    <div className="text-center mb-8">
-                        <Badge variant="outline" className="border-purple-500/30">Success Stories</Badge>
-                        <h2 className="text-3xl font-bold mt-3 font-[Outfit]">Loved by learners</h2>
-                        <p className="text-muted-foreground mt-2">Join 5000+ developers who leveled up</p>
+                <div className="mt-32">
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl font-extrabold tracking-tight text-white mb-3">Peer Reviews</h2>
+                        <p className="text-zinc-400">Feedback from software engineers relying on our platform.</p>
                     </div>
                     <Testimonials />
                 </div>
 
-                {/* Learning path preview */}
-                <div className="mt-24">
-                    <Card className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-lg rounded-2xl">
-                        <CardContent className="p-8 text-center pt-10 pb-12">
-                            <GraduationCap className="w-16 h-16 mx-auto mb-4 text-purple-400" />
-                            <h2 className="text-3xl font-bold mb-3 font-[Outfit]">Ready to master DSA?</h2>
-                            <p className="text-muted-foreground max-w-2xl mx-auto mb-8 text-base">
-                                Join thousands of developers who've used our platform to ace their interviews.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button size="lg" onClick={() => navigate("/hub")} className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold shadow-[0_0_20px_rgba(192,132,252,0.4)] text-white hover:from-purple-500 hover:to-pink-500">
-                                    <BookOpen size={18} /> Browse Problems
-                                </Button>
-                                <Button size="lg" variant="outline" onClick={() => navigate("/workspace?problem=1")} className="gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white rounded-full font-bold backdrop-blur-md">
-                                    <PlayCircle size={18} /> Try Visualizer
-                                </Button>
-                            </div>
-
-                            {/* Progress preview */}
-                            <div className="max-w-md mx-auto mt-10">
-                                <div className="flex justify-between text-xs text-muted-foreground mb-2 font-medium">
-                                    <span>Your progress</span>
-                                    <span className="text-cyan-400">65% complete</span>
-                                </div>
-                                <Progress value={65} className="h-2 bg-gray-800" indicatorClassName="bg-gradient-to-r from-cyan-400 to-purple-500" />
-                                <p className="text-xs text-muted-foreground mt-3">Continue where you left off</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Footer */}
-                <div className="mt-24 pt-8 border-t border-white/10">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <BrainCircuit className="text-purple-400 w-6 h-6" />
-                            <span className="font-bold font-[Outfit] text-lg">DSA Visualizer</span>
-                        </div>
-                        <div className="flex gap-6 text-sm text-muted-foreground font-medium">
-                            <a href="#" className="hover:text-white transition-colors">About</a>
-                            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                            <a href="#" className="hover:text-white transition-colors">Terms</a>
-                            <a href="#" className="hover:text-white transition-colors">Contact</a>
-                        </div>
-                        <div className="flex gap-3">
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-white/5 hover:bg-white/10">
-                                <Github size={16} />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-white/5 hover:bg-white/10">
-                                <Twitter size={16} />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-white/5 hover:bg-white/10">
-                                <Linkedin size={16} />
+                {/* Footer CTA */}
+                <div className="mt-32 border-t border-zinc-900 pt-20 pb-10">
+                    <div className="text-center">
+                        <h2 className="text-3xl font-extrabold tracking-tight text-white mb-6">Begin your technical prep.</h2>
+                        <div className="flex justify-center gap-4">
+                            <Button size="lg" onClick={() => navigate("/hub")} className="gap-2 bg-white text-black hover:bg-zinc-200 rounded-lg px-8 py-6 text-base font-bold shadow-none">
+                                Goto Workspace
                             </Button>
                         </div>
                     </div>
-                    <p className="text-center text-xs text-muted-foreground mt-8 mb-4">
-                        © 2026 DSA Visualizer. Open source and free forever.
-                    </p>
+
+                    <div className="mt-24 pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 font-medium">
+                        <div className="flex items-center gap-2">
+                            <Code2 className="text-zinc-400 w-5 h-5" />
+                            <span className="text-zinc-300 tracking-wide font-bold uppercase">DSA Vis</span>
+                        </div>
+                        <div className="flex gap-8">
+                            <a href="#" className="hover:text-zinc-300 transition-colors">Documentation</a>
+                            <a href="#" className="hover:text-zinc-300 transition-colors">Support</a>
+                            <a href="#" className="hover:text-zinc-300 transition-colors">Terms of Service</a>
+                        </div>
+                        <div className="flex gap-4">
+                            <Github size={18} className="hover:text-zinc-300 cursor-pointer transition-colors" />
+                            <Twitter size={18} className="hover:text-zinc-300 cursor-pointer transition-colors" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
