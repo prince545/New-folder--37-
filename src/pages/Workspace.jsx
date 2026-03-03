@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
     Box, Key, Play, Sparkles, Lightbulb, BookOpen, Bug, Code, PenLine,
     ChevronRight, ChevronLeft, RotateCcw, Download, Upload, Save,
@@ -462,7 +464,16 @@ int main() {
                     break;
                 case 'solution':
                     response = await geminiService.generate(
-                        `Provide the code implementation for ${problem.title}. Include three distinct sections: 1. Brute Force Code, 2. Better Code, 3. Optimal Code. Do not include long theory or explanations, just the code blocks with time/space complexity comments.`
+                        `Provide the C++17 code implementation for ${problem.title}. 
+Use ONLY C++ in your answer (no Java, Python, or other languages).
+Include three distinct sections, each as a fenced C++ code block with a short label above it:
+1. Brute Force Code
+2. Better Code
+3. Optimal Code
+For each code block:
+- Wrap it in \`\`\`cpp ... \`\`\`
+- Add brief time and space complexity comments at the top of the code.
+Avoid long theory; focus on clean, idiomatic C++.`
                     );
                     break;
                 default:
@@ -688,7 +699,27 @@ int main() {
                                                     )}
                                                     {editorTab === "ai" && (
                                                         <div className="text-xs prose prose-invert max-w-none">
-                                                            {aiAssistantOutput}
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                components={{
+                                                                    code({ node, inline, className, children, ...props }) {
+                                                                        const match = /language-(\w+)/.exec(className || "");
+                                                                        return !inline ? (
+                                                                            <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
+                                                                                <code className={className} {...props}>
+                                                                                    {children}
+                                                                                </code>
+                                                                            </pre>
+                                                                        ) : (
+                                                                            <code className="bg-black/40 px-1.5 py-0.5 rounded text-[0.7rem]" {...props}>
+                                                                                {children}
+                                                                            </code>
+                                                                        );
+                                                                    },
+                                                                }}
+                                                            >
+                                                                {aiAssistantOutput || ""}
+                                                            </ReactMarkdown>
                                                         </div>
                                                     )}
                                                     {editorTab === "notepad" && (
@@ -854,7 +885,27 @@ int main() {
                                             )}
                                             {editorTab === "ai" && (
                                                 <div className="text-xs prose prose-invert max-w-none">
-                                                    {aiAssistantOutput || "👋 Ask me anything about your code!"}
+                                                    <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm]}
+                                                        components={{
+                                                            code({ node, inline, className, children, ...props }) {
+                                                                const match = /language-(\w+)/.exec(className || "");
+                                                                return !inline ? (
+                                                                    <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
+                                                                        <code className={className} {...props}>
+                                                                            {children}
+                                                                        </code>
+                                                                    </pre>
+                                                                ) : (
+                                                                    <code className="bg-black/40 px-1.5 py-0.5 rounded text-[0.7rem]" {...props}>
+                                                                        {children}
+                                                                    </code>
+                                                                );
+                                                            },
+                                                        }}
+                                                    >
+                                                        {aiAssistantOutput || "👋 Ask me anything about your code!"}
+                                                    </ReactMarkdown>
                                                 </div>
                                             )}
                                             {editorTab === "notepad" && (
