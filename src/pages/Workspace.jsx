@@ -249,6 +249,7 @@ export default function Workspace() {
     const [isVisualizing, setIsVisualizing] = useState(false);
     const [geminiKey, setGeminiKey] = useState(localStorage.getItem("gemini_key") || "");
     const [approach, setApproach] = useState("optimal");
+    const [aiApproach, setAiApproach] = useState("optimal");
     const [complexity, setComplexity] = useState("O(n²)");
     const [visualizerSteps, setVisualizerSteps] = useState(null);
     const [visualizerError, setVisualizerError] = useState("");
@@ -451,7 +452,7 @@ int main() {
         setIsVisualizing(false);
     };
 
-    const handleAiAction = async (actionType) => {
+    const handleAiAction = async (actionType, variantOverride) => {
         if (!geminiKey) {
             setEditorTab("ai");
             setAiAssistantOutput("🔑 Please enter your Gemini API Key first!");
@@ -463,6 +464,8 @@ int main() {
         setAiAssistantOutput("🧠 Thinking...");
 
         try {
+            const variant = variantOverride || aiApproach;
+            const variantLabel = variant === "brute" ? "Brute Force" : (variant === "better" ? "Better" : "Optimal");
             let response;
             switch (actionType) {
                 case 'hint':
@@ -473,6 +476,43 @@ int main() {
                     break;
                 case 'debug':
                     response = await geminiService.debugCode(code, problem.title);
+                    break;
+                case 'algorithm':
+                    response = await geminiService.generate(
+                        `You are an expert algorithm teacher.
+Create an algorithm for the problem "${problem.title}" based on the user's CURRENT solution and approach.
+
+Target approach: ${variantLabel}
+User code (C++):
+${code}
+
+Rules:
+- Output EXACTLY 5 steps, numbered 1 to 5.
+- Each step must be 1-2 short sentences describing WHAT to do and WHY.
+- Mention key data structures/variables used.
+- Do NOT output C++ code or pseudocode.
+- End with a final line: "Complexity: Time <...>, Space <...>"`
+                    );
+                    break;
+                case 'pseudocode':
+                    response = await geminiService.generate(
+                        `Write clear pseudocode for the problem "${problem.title}" using the ${variantLabel} approach.
+
+Context:
+- The user is coding in C++.
+- Target approach is: ${variantLabel}
+- User code (for reference):
+${code}
+
+Rules:
+- Do NOT output any C++ code. Use language-agnostic pseudocode.
+- Output EXACTLY ONE version (the ${variantLabel} version).
+- Include:
+  - A short 1-line idea summary
+  - A pseudocode block in triple backticks
+  - A final line: "Complexity: Time <...>, Space <...>"
+- Keep it concise and beginner-friendly.`
+                    );
                     break;
                 case 'solution':
                     response = await geminiService.generate(
@@ -767,11 +807,43 @@ Avoid long theory; focus on clean, idiomatic C++.`
 
                                             {/* Output Tabs */}
                                             <Tabs value={editorTab} onValueChange={setEditorTab}>
-                                                <TabsList className="bg-white/5 border border-white/10">
-                                                    <TabsTrigger value="terminal">Terminal</TabsTrigger>
-                                                    <TabsTrigger value="ai">AI Assistant</TabsTrigger>
-                                                    <TabsTrigger value="notepad">Scratchpad</TabsTrigger>
-                                                </TabsList>
+                                                <div className="flex items-center gap-2">
+                                                    <TabsList className="flex-1 bg-white/5 border border-white/10 justify-start">
+                                                        <TabsTrigger value="terminal">Terminal</TabsTrigger>
+                                                        <TabsTrigger value="ai">AI Assistant</TabsTrigger>
+                                                        <TabsTrigger value="notepad">Scratchpad</TabsTrigger>
+                                                    </TabsList>
+                                                    <div className="flex items-center gap-1">
+                                                        <Select value={aiApproach} onValueChange={setAiApproach}>
+                                                            <SelectTrigger className="h-9 w-[110px] bg-white/5 border-white/10">
+                                                                <SelectValue placeholder="Approach" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="brute">Brute</SelectItem>
+                                                                <SelectItem value="better">Better</SelectItem>
+                                                                <SelectItem value="optimal">Optimal</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            className="h-9 px-2"
+                                                            onClick={() => handleAiAction("algorithm", aiApproach)}
+                                                            disabled={isAiThinking}
+                                                        >
+                                                            <GitBranch size={14} className="mr-1" /> Algorithm
+                                                        </Button>
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            className="h-9 px-2"
+                                                            onClick={() => handleAiAction("pseudocode", aiApproach)}
+                                                            disabled={isAiThinking}
+                                                        >
+                                                            <PenLine size={14} className="mr-1" /> Pseudocode
+                                                        </Button>
+                                                    </div>
+                                                </div>
 
                                                 <div className="mt-2 border border-white/10 bg-black/40 rounded-lg p-3 min-h-[150px] max-h-[200px] overflow-auto">
                                                     {editorTab === "terminal" && (
@@ -964,11 +1036,43 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                 {/* Output Area */}
                                 <div ref={aiOutputRef} className="mt-4 flex-shrink-0 min-h-[350px] border border-white/10 rounded-lg bg-black/40 flex flex-col">
                                     <Tabs value={editorTab} onValueChange={setEditorTab} className="h-full flex flex-col">
-                                        <TabsList className="w-full justify-start bg-transparent border-b border-white/10 rounded-none p-0">
-                                            <TabsTrigger value="terminal" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-400">Terminal</TabsTrigger>
-                                            <TabsTrigger value="ai" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-purple-400">AI Assistant</TabsTrigger>
-                                            <TabsTrigger value="notepad" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-yellow-400">Scratchpad</TabsTrigger>
-                                        </TabsList>
+                                        <div className="flex items-center justify-between gap-2 border-b border-white/10">
+                                            <TabsList className="flex-1 justify-start bg-transparent rounded-none p-0">
+                                                <TabsTrigger value="terminal" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-400">Terminal</TabsTrigger>
+                                                <TabsTrigger value="ai" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-purple-400">AI Assistant</TabsTrigger>
+                                                <TabsTrigger value="notepad" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-yellow-400">Scratchpad</TabsTrigger>
+                                            </TabsList>
+                                            <div className="flex items-center gap-1 pr-2">
+                                                <Select value={aiApproach} onValueChange={setAiApproach}>
+                                                    <SelectTrigger className="h-8 w-[110px] bg-white/5 border-white/10">
+                                                        <SelectValue placeholder="Approach" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="brute">Brute</SelectItem>
+                                                        <SelectItem value="better">Better</SelectItem>
+                                                        <SelectItem value="optimal">Optimal</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="h-8 px-2"
+                                                    onClick={() => handleAiAction("algorithm", aiApproach)}
+                                                    disabled={isAiThinking}
+                                                >
+                                                    <GitBranch size={14} className="mr-1" /> Algorithm
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="h-8 px-2"
+                                                    onClick={() => handleAiAction("pseudocode", aiApproach)}
+                                                    disabled={isAiThinking}
+                                                >
+                                                    <PenLine size={14} className="mr-1" /> Pseudocode
+                                                </Button>
+                                            </div>
+                                        </div>
                                         <div className="flex-1 p-3 overflow-auto">
                                             {editorTab === "terminal" && (
                                                 <pre className="text-xs text-emerald-200/90 whitespace-pre-wrap">{output}</pre>
