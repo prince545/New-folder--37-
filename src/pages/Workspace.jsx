@@ -6,7 +6,8 @@ import {
     Box, Key, Play, Sparkles, Lightbulb, BookOpen, Bug, Code, PenLine,
     ChevronRight, ChevronLeft, RotateCcw, Download, Upload, Save,
     AlertCircle, CheckCircle, HelpCircle, Target, Trophy, Clock,
-    BarChart, Layers, GitBranch, Eye, EyeOff, Zap, Shield, Cpu
+    BarChart, Layers, GitBranch, Eye, EyeOff, Zap, Shield, Cpu,
+    Maximize2, Minimize2
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { useDebounce } from "use-debounce";
@@ -267,6 +268,7 @@ export default function Workspace() {
     const [userProgress, setUserProgress] = useState({});
     const [showLineNumbers, setShowLineNumbers] = useState(true);
     const [fontSize, setFontSize] = useState(14);
+    const [isEditorExpanded, setIsEditorExpanded] = useState(false);
 
     // Refs
     const editorRef = useRef(null);
@@ -344,6 +346,16 @@ int main() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [problemId, approach, problem]);
+
+    // Close fullscreen editor with Escape
+    useEffect(() => {
+        if (!isEditorExpanded) return;
+        const onKeyDown = (e) => {
+            if (e.key === "Escape") setIsEditorExpanded(false);
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [isEditorExpanded]);
 
     // Auto-save code
     useEffect(() => {
@@ -550,10 +562,78 @@ Avoid long theory; focus on clean, idiomatic C++.`
         Hard: <Badge className="bg-red-500/15 text-red-300 border-red-500/20">Hard 🎯</Badge>
     }[problem.difficulty];
 
+    const hasCompiled = Boolean(userProgress?.compiled);
+
     return (
         <TooltipProvider>
             <div className="h-[calc(100vh-56px)] px-4 py-4 overflow-y-auto">
                 <div className="mx-auto max-w-7xl h-full flex flex-col gap-4">
+                    {/* Fullscreen editor */}
+                    {isEditorExpanded && (
+                        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm">
+                            <div className="h-full w-full px-4 py-4">
+                                <div className="mx-auto max-w-7xl h-full flex flex-col gap-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                                            <Code size={16} className="text-cyan-300" />
+                                            Editor
+                                            <Badge variant="outline" className="border-white/10 text-slate-200 bg-white/5">
+                                                Esc to close
+                                            </Badge>
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            className="border-white/10 bg-white/5 hover:bg-white/10"
+                                            onClick={() => setIsEditorExpanded(false)}
+                                        >
+                                            <Minimize2 size={16} className="mr-2" />
+                                            Exit fullscreen
+                                        </Button>
+                                    </div>
+
+                                    <div className="flex-1 min-h-0 border border-white/10 rounded-xl overflow-hidden bg-black/40">
+                                        <Editor
+                                            height="100%"
+                                            defaultLanguage="cpp"
+                                            value={code}
+                                            onChange={(value) => setCode(value || '')}
+                                            theme="vs-dark"
+                                            options={{
+                                                minimap: { enabled: false },
+                                                fontSize: fontSize,
+                                                lineNumbers: showLineNumbers ? 'on' : 'off',
+                                                scrollBeyondLastLine: false,
+                                                automaticLayout: true
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div className="flex gap-2 flex-wrap">
+                                            <Button onClick={handleRunCode} disabled={isCompiling} className="gap-2">
+                                                <Play size={16} />
+                                                {isCompiling ? "Compiling..." : "Run (Ctrl+Enter)"}
+                                            </Button>
+                                            <Button onClick={() => handleAiAction('hint')} variant="secondary" disabled={isAiThinking}>
+                                                <Lightbulb size={14} className="mr-1" /> Hint
+                                            </Button>
+                                            <Button onClick={() => handleAiAction('explain')} variant="secondary" disabled={isAiThinking}>
+                                                <BookOpen size={14} className="mr-1" /> Explain
+                                            </Button>
+                                            <Button onClick={() => handleAiAction('debug')} variant="secondary" disabled={isAiThinking}>
+                                                <Bug size={14} className="mr-1" /> Debug
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Switch checked={autoSave} onCheckedChange={setAutoSave} />
+                                            <span className="text-xs text-slate-300">Auto-save</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Header */}
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="flex flex-wrap items-center gap-3">
@@ -702,8 +782,7 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                             <ReactMarkdown
                                                                 remarkPlugins={[remarkGfm]}
                                                                 components={{
-                                                                    code({ node, inline, className, children, ...props }) {
-                                                                        const match = /language-(\w+)/.exec(className || "");
+                                                                    code({ inline, className, children, ...props }) {
                                                                         return !inline ? (
                                                                             <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
                                                                                 <code className={className} {...props}>
@@ -753,11 +832,11 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                 <div className="flex gap-2">
                                                     <Button
                                                         onClick={handleVisualizeWithAI}
-                                                        disabled={isVisualizing}
+                                                        disabled={isVisualizing || !hasCompiled}
                                                         className="bg-gradient-to-r from-purple-600 to-pink-600"
                                                     >
                                                         <Sparkles size={16} className="mr-2" />
-                                                        {isVisualizing ? "Generating..." : "Generate Trace"}
+                                                        {!hasCompiled ? "Run code first" : (isVisualizing ? "Generating..." : "Generate Trace")}
                                                     </Button>
                                                     {visualizerSteps && (
                                                         <Button variant="ghost" size="icon" onClick={resetVisualizer}>
@@ -789,6 +868,14 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                         <AlertTitle>Visualization Error</AlertTitle>
                                                         <AlertDescription>{visualizerError}</AlertDescription>
                                                     </Alert>
+                                                ) : !hasCompiled ? (
+                                                    <div className="h-full flex flex-col items-center justify-center text-center">
+                                                        <Box size={40} className="mb-3 text-white/20" />
+                                                        <h3 className="text-base font-semibold mb-1">Run code to enable visualization</h3>
+                                                        <p className="text-sm text-muted-foreground max-w-md">
+                                                            After you run your solution, you can generate a clean step-by-step trace here.
+                                                        </p>
+                                                    </div>
                                                 ) : (
                                                     <div className="h-full flex flex-col items-center justify-center text-center">
                                                         <Box size={48} className="mb-4 text-white/20" />
@@ -808,7 +895,7 @@ Avoid long theory; focus on clean, idiomatic C++.`
                     </div>
 
                     {/* Desktop View */}
-                    <div className="hidden md:grid grid-cols-2 gap-4 flex-1 min-h-0">
+                    <div className={`hidden md:grid ${isEditorExpanded ? 'grid-cols-1' : 'grid-cols-2'} gap-4 flex-1 min-h-0`}>
                         {/* Editor Panel */}
                         <Card className="bg-white/5 border-white/10 flex flex-col">
                             <CardHeader className="flex-row items-center justify-between space-y-0 py-3">
@@ -823,6 +910,9 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                     </Button>
                                     <Button variant="ghost" size="icon" onClick={() => setShowLineNumbers(!showLineNumbers)}>
                                         {showLineNumbers ? <Eye size={14} /> : <EyeOff size={14} />}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" onClick={() => setIsEditorExpanded(!isEditorExpanded)} title={isEditorExpanded ? "Minimize Editor" : "Maximize Editor"}>
+                                        {isEditorExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                                     </Button>
                                     <Select value={fontSize.toString()} onValueChange={(v) => setFontSize(parseInt(v))}>
                                         <SelectTrigger className="w-16 h-8">
@@ -888,8 +978,7 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                     <ReactMarkdown
                                                         remarkPlugins={[remarkGfm]}
                                                         components={{
-                                                            code({ node, inline, className, children, ...props }) {
-                                                                const match = /language-(\w+)/.exec(className || "");
+                                                            code({ inline, className, children, ...props }) {
                                                                 return !inline ? (
                                                                     <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
                                                                         <code className={className} {...props}>
@@ -923,85 +1012,95 @@ Avoid long theory; focus on clean, idiomatic C++.`
                         </Card>
 
                         {/* Visualizer Panel */}
-                        <Card className="bg-white/5 border-white/10 flex flex-col">
-                            <CardHeader className="flex-row items-center justify-between space-y-0 py-3">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Box className="text-cyan-300" size={18} />
-                                    Algorithm Visualizer
-                                </CardTitle>
-                                <div className="flex items-center gap-2">
-                                    <Tabs value={approach} onValueChange={setApproach}>
-                                        <TabsList className="bg-black/40 border border-white/10">
-                                            <TabsTrigger value="brute">Brute</TabsTrigger>
-                                            <TabsTrigger value="better">Better</TabsTrigger>
-                                            <TabsTrigger value="optimal">Optimal</TabsTrigger>
-                                        </TabsList>
-                                    </Tabs>
-                                    <Button
-                                        onClick={handleVisualizeWithAI}
-                                        disabled={isVisualizing}
-                                        size="sm"
-                                        className="bg-gradient-to-r from-purple-600 to-pink-600"
-                                    >
-                                        <Sparkles size={14} className="mr-1" />
-                                        {isVisualizing ? "Thinking..." : "Generate"}
-                                    </Button>
-                                    {visualizerSteps && (
-                                        <Button variant="ghost" size="icon" onClick={resetVisualizer}>
-                                            <RotateCcw size={14} />
+                        {!isEditorExpanded && (
+                            <Card className="bg-white/5 border-white/10 flex flex-col">
+                                <CardHeader className="flex-row items-center justify-between space-y-0 py-3">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Box className="text-cyan-300" size={18} />
+                                        Algorithm Visualizer
+                                    </CardTitle>
+                                    <div className="flex items-center gap-2">
+                                        <Tabs value={approach} onValueChange={setApproach}>
+                                            <TabsList className="bg-black/40 border border-white/10">
+                                                <TabsTrigger value="brute">Brute</TabsTrigger>
+                                                <TabsTrigger value="better">Better</TabsTrigger>
+                                                <TabsTrigger value="optimal">Optimal</TabsTrigger>
+                                            </TabsList>
+                                        </Tabs>
+                                        <Button
+                                            onClick={handleVisualizeWithAI}
+                                            disabled={isVisualizing || !hasCompiled}
+                                            size="sm"
+                                            className="bg-gradient-to-r from-purple-600 to-pink-600"
+                                        >
+                                            <Sparkles size={14} className="mr-1" />
+                                            {!hasCompiled ? "Run code first" : (isVisualizing ? "Thinking..." : "Generate")}
                                         </Button>
-                                    )}
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex-1 min-h-0 p-4 pt-0">
-                                <div className="h-full border border-white/10 rounded-lg bg-black/40 overflow-auto">
-                                    {visualizerSteps ? (
-                                        <div className="p-4">
-                                            <DynamicVisualizer
-                                                steps={visualizerSteps}
-                                                currentStep={currentStep}
-                                                error={visualizerError}
-                                            />
-                                            <VisualizerControls
-                                                steps={visualizerSteps}
-                                                currentStep={currentStep}
-                                                onStepChange={setCurrentStep}
-                                                onPlay={() => setIsPlaying(!isPlaying)}
-                                                isPlaying={isPlaying}
-                                            />
-                                        </div>
-                                    ) : visualizerError ? (
-                                        <div className="p-4">
-                                            <Alert variant="destructive">
-                                                <AlertCircle className="h-4 w-4" />
-                                                <AlertTitle>Visualization Error</AlertTitle>
-                                                <AlertDescription>{visualizerError}</AlertDescription>
-                                            </Alert>
-                                        </div>
-                                    ) : SpecificVisualizer ? (
-                                        <SpecificVisualizer approach={approach} />
-                                    ) : (
-                                        <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                                            <Box size={48} className="mb-4 text-white/20" />
-                                            <h3 className="text-lg font-semibold mb-2 text-foreground">
-                                                {problem.title}
-                                            </h3>
-                                            <p className="text-sm text-muted-foreground max-w-md mb-4">
-                                                {problem.description || "Visualize your algorithm step by step with AI-powered explanations."}
-                                            </p>
-                                            <div className="flex gap-2">
-                                                <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">
-                                                    <Zap size={12} className="mr-1" /> {problem.complexities?.[approach] || "O(n)"}
-                                                </Badge>
-                                                <Badge variant="outline" className="border-purple-500/30 text-purple-400">
-                                                    <Shield size={12} className="mr-1" /> {problem.spaceComplexities?.[approach] || "O(1)"}
-                                                </Badge>
+                                        {visualizerSteps && (
+                                            <Button variant="ghost" size="icon" onClick={resetVisualizer}>
+                                                <RotateCcw size={14} />
+                                            </Button>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-1 min-h-0 p-4 pt-0">
+                                    <div className="h-full border border-white/10 rounded-lg bg-black/40 overflow-auto">
+                                        {visualizerSteps ? (
+                                            <div className="p-4">
+                                                <DynamicVisualizer
+                                                    steps={visualizerSteps}
+                                                    currentStep={currentStep}
+                                                    error={visualizerError}
+                                                />
+                                                <VisualizerControls
+                                                    steps={visualizerSteps}
+                                                    currentStep={currentStep}
+                                                    onStepChange={setCurrentStep}
+                                                    onPlay={() => setIsPlaying(!isPlaying)}
+                                                    isPlaying={isPlaying}
+                                                />
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                        ) : visualizerError ? (
+                                            <div className="p-4">
+                                                <Alert variant="destructive">
+                                                    <AlertCircle className="h-4 w-4" />
+                                                    <AlertTitle>Visualization Error</AlertTitle>
+                                                    <AlertDescription>{visualizerError}</AlertDescription>
+                                                </Alert>
+                                            </div>
+                                        ) : !hasCompiled ? (
+                                            <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                                                <Box size={40} className="mb-3 text-white/20" />
+                                                <h3 className="text-base font-semibold mb-1 text-foreground">Run code to enable visualization</h3>
+                                                <p className="text-sm text-muted-foreground max-w-md">
+                                                    After you run your solution, click <span className="text-purple-300 font-medium">Generate</span> to create a trace.
+                                                </p>
+                                            </div>
+                                        ) : SpecificVisualizer ? (
+                                            <SpecificVisualizer approach={approach} />
+                                        ) : (
+                                            <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                                                <Box size={48} className="mb-4 text-white/20" />
+                                                <h3 className="text-lg font-semibold mb-2 text-foreground">
+                                                    {problem.title}
+                                                </h3>
+                                                <p className="text-sm text-muted-foreground max-w-md mb-4">
+                                                    {problem.description || "Visualize your algorithm step by step with AI-powered explanations."}
+                                                </p>
+                                                <div className="flex gap-2">
+                                                    <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">
+                                                        <Zap size={12} className="mr-1" /> {problem.complexities?.[approach] || "O(n)"}
+                                                    </Badge>
+                                                    <Badge variant="outline" className="border-purple-500/30 text-purple-400">
+                                                        <Shield size={12} className="mr-1" /> {problem.spaceComplexities?.[approach] || "O(1)"}
+                                                    </Badge>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
                 </div>
             </div>
