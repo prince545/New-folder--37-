@@ -1,0 +1,35 @@
+### Node / package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+### Vite / build outputs
+dist/
+dist-ssr/
+build/
+.vite/
+
+### Testing / coverage
+coverage/
+
+### Env files (keep your secrets out of git)
+.env
+.env.*
+
+### Logs
+logs/
+*.log
+
+### Editor / IDE
+.vscode/
+.idea/
+
+### OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+### Misc
+*.local

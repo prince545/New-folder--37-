@@ -1,0 +1,212 @@
+[
+    {
+        "id": 560,
+        "title": "Subarray Sum Equals K",
+        "difficulty": "Medium",
+        "category": "Prefix Sum",
+        "note": "Hashmap + prefix → extremely common variation"
+    },
+    {
+        "id": 167,
+        "title": "Two Sum II - Input Array Is Sorted",
+        "difficulty": "Medium",
+        "category": "Two Pointers / Sorted Arrays",
+        "note": "Clean two-pointer, often follow-up to Two Sum"
+    },
+    {
+        "id": 3,
+        "title": "Longest Substring Without Repeating Characters",
+        "difficulty": "Medium",
+        "category": "Sliding Window",
+        "note": "Absolute top-10 most asked overall"
+    },
+    {
+        "id": 739,
+        "title": "Daily Temperatures",
+        "difficulty": "Medium",
+        "category": "Monotonic Stack",
+        "note": "Classic next-greater pattern, appears everywhere"
+    },
+    {
+        "id": 20,
+        "title": "Valid Parentheses",
+        "difficulty": "Easy",
+        "category": "Stack / Parentheses",
+        "note": "Must-know foundation, almost every company asks it or variant"
+    },
+    {
+        "id": 33,
+        "title": "Search in Rotated Sorted Array",
+        "difficulty": "Medium",
+        "category": "Binary Search",
+        "note": "Rotated array binary search → very high frequency"
+    },
+    {
+        "id": 875,
+        "title": "Koko Eating Bananas",
+        "difficulty": "Medium",
+        "category": "Binary Search on Answer",
+        "note": "Textbook 'binary search on value/range' problem"
+    },
+    {
+        "id": 141,
+        "title": "Linked List Cycle",
+        "difficulty": "Easy",
+        "category": "Linked List Cycle / Fast-Slow",
+        "note": "Floyd’s cycle → appears in almost every list round"
+    },
+    {
+        "id": 206,
+        "title": "Reverse Linked List",
+        "difficulty": "Easy",
+        "category": "Linked List Reversal",
+        "note": "Core operation, needed for 80% of harder list problems"
+    },
+    {
+        "id": 25,
+        "title": "Reverse Nodes in k-Group",
+        "difficulty": "Hard",
+        "category": "Advanced Linked List",
+        "note": "High-signal hard list problem, asked at Meta/Google frequently"
+    },
+    {
+        "id": 543,
+        "title": "Diameter of Binary Tree",
+        "difficulty": "Easy",
+        "category": "Binary Tree Basics / Recursion",
+        "note": "Clean recursion + global var pattern"
+    },
+    {
+        "id": 102,
+        "title": "Binary Tree Level Order Traversal",
+        "difficulty": "Medium",
+        "category": "Binary Tree BFS / Level Order",
+        "note": "Standard BFS template, very common"
+    },
+    {
+        "id": 105,
+        "title": "Construct Binary Tree from Preorder and Inorder",
+        "difficulty": "Medium",
+        "category": "Tree Construction",
+        "note": "Classic reconstruction, high company frequency"
+    },
+    {
+        "id": 98,
+        "title": "Validate Binary Search Tree",
+        "difficulty": "Medium",
+        "category": "Binary Search Tree",
+        "note": "BST property check → staple question"
+    },
+    {
+        "id": 208,
+        "title": "Implement Trie (Prefix Tree)",
+        "difficulty": "Medium",
+        "category": "Trie",
+        "note": "Core design + word problems, Meta loves it"
+    },
+    {
+        "id": 215,
+        "title": "Kth Largest Element in an Array",
+        "difficulty": "Medium",
+        "category": "Heap / Top K",
+        "note": "Quick-select or heap → top heap problem"
+    },
+    {
+        "id": 295,
+        "title": "Find Median from Data Stream",
+        "difficulty": "Hard",
+        "category": "Advanced Heap / Running Median",
+        "note": "Two heaps design, appears in system-like coding rounds"
+    },
+    {
+        "id": 78,
+        "title": "Subsets",
+        "difficulty": "Medium",
+        "category": "Backtracking Subsets",
+        "note": "Cleanest backtracking template"
+    },
+    {
+        "id": 46,
+        "title": "Permutations",
+        "difficulty": "Medium",
+        "category": "Backtracking Permutations",
+        "note": "Standard permutation pattern"
+    },
+    {
+        "id": 51,
+        "title": "N-Queens",
+        "difficulty": "Hard",
+        "category": "Hard Backtracking / Chessboard",
+        "note": "Highest-signal hard backtracking, Google/Meta classic"
+    },
+    {
+        "id": 200,
+        "title": "Number of Islands",
+        "difficulty": "Medium",
+        "category": "Graph DFS / Islands",
+        "note": "#1 most asked graph problem across companies"
+    },
+    {
+        "id": 994,
+        "title": "Rotting Oranges",
+        "difficulty": "Medium",
+        "category": "Graph BFS / Multi-source",
+        "note": "Clean multi-source BFS, Amazon loves it"
+    },
+    {
+        "id": 207,
+        "title": "Course Schedule",
+        "difficulty": "Medium",
+        "category": "Topological Sort / Cycle",
+        "note": "Classic cycle + topo sort, very frequent"
+    },
+    {
+        "id": 547,
+        "title": "Number of Provinces",
+        "difficulty": "Medium",
+        "category": "Union-Find",
+        "note": "Clean intro to Union-Find, appears often"
+    },
+    {
+        "id": 198,
+        "title": "House Robber",
+        "difficulty": "Medium",
+        "category": "1D Dynamic Programming",
+        "note": "Cleanest 1D DP, top DP starter"
+    },
+    {
+        "id": 1143,
+        "title": "Longest Common Subsequence",
+        "difficulty": "Medium",
+        "category": "2D DP / LCS family",
+        "note": "Core 2D DP pattern, frequent in Meta/Amazon"
+    },
+    {
+        "id": 416,
+        "title": "Partition Equal Subset Sum",
+        "difficulty": "Medium",
+        "category": "Knapsack / Partition",
+        "note": "Classic 0/1 knapsack variant"
+    },
+    {
+        "id": 56,
+        "title": "Merge Intervals",
+        "difficulty": "Medium",
+        "category": "Greedy + Intervals",
+        "note": "Most important interval problem, asked everywhere"
+    },
+    {
+        "id": 136,
+        "title": "Single Number",
+        "difficulty": "Easy",
+        "category": "Bit Manipulation",
+        "note": "XOR trick foundation, very common easy/medium"
+    },
+    {
+        "id": 42,
+        "title": "Trapping Rain Water",
+        "difficulty": "Hard",
+        "category": "Signature Hard Problems",
+        "note": "Iconic hard, multiple solutions (two-pointer / stack / prefix)"
+    }
+]
