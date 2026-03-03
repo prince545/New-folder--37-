@@ -2,13 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 
-export default function Problem3() {
+export default function Problem3({ approach = "optimal" }) {
     const [stepIndex, setStepIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // Hardcoded logic for Longest Substring Without Repeating Characters (s = "abcabcbb")
-    // Let's use string "pwwkew"
-    const steps = [
+    // Reset step index when approach changes
+    useEffect(() => {
+        setStepIndex(0);
+        setIsPlaying(false);
+    }, [approach]);
+
+    // BRUTE FORCE LOGIC (O(N^3))
+    const stepsBrute = [
+        {
+            desc: "Brute Force O(N^3): Generate all possible substrings, and for each, check if it has duplicate characters. This is extremely slow.",
+            formula: "max_len = 0",
+            data: ['p', 'w', 'w', 'k', 'e', 'w'],
+            pointers: { left: 0, right: 0 },
+            scalars: { approach: "Brute Force O(N^3)" },
+            charSet: []
+        },
+        {
+            desc: "Checking substring 'p'...",
+            formula: "Valid!",
+            data: ['p', 'w', 'w', 'k', 'e', 'w'],
+            pointers: { left: 0, right: 0 },
+            scalars: { approach: "Brute Force O(N^3)", len: 1 },
+            charSet: []
+        }
+    ];
+
+    // BETTER LOGIC (O(N^2))
+    const stepsBetter = [
+        {
+            desc: "Better Approach O(N^2): Use a nested loop to check substrings starting from each index, but break early if a duplicate is found using a Set.",
+            formula: "left = start_index",
+            data: ['p', 'w', 'w', 'k', 'e', 'w'],
+            pointers: { left: 0 },
+            scalars: { approach: "Better O(N^2)" },
+            charSet: []
+        }
+    ];
+
+    // OPTIMAL LOGIC (Sliding Window O(N))
+    const stepsOptimal = [
         {
             desc: "Input: 'pwwkew'. We need to find the longest substring without repeating characters. We use a Sliding Window approach (left and right pointers) and a Set to track seen characters in the current window.",
             formula: "max_len = 0",
@@ -83,6 +120,8 @@ export default function Problem3() {
         }
     ];
 
+    const steps = approach === "brute" ? stepsBrute : approach === "better" ? stepsBetter : stepsOptimal;
+
     useEffect(() => {
         let timer;
         if (isPlaying && stepIndex < steps.length - 1) {
@@ -100,8 +139,8 @@ export default function Problem3() {
     return (
         <div className="w-full h-full flex flex-col justify-between overflow-y-auto pb-6">
             <div className="bg-gradient-to-r from-orange-900/30 to-rose-900/30 border-l-4 border-orange-500 p-5 rounded-md mb-6 shadow-lg relative mx-4 mt-4">
-                <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-orange-300">
-                    Step {stepIndex + 1} of {steps.length}
+                <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-orange-300 uppercase">
+                    Step {stepIndex + 1} of {steps.length} | {approach}
                 </div>
                 <h3 className="text-white text-lg font-medium leading-relaxed">{currentStep.desc}</h3>
                 {currentStep.formula && (

@@ -2,18 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 
-export default function Problem207() {
+export default function Problem207({ approach = "optimal" }) {
     const [stepIndex, setStepIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // Dummy logic for Course Schedule
-    // TODO: Implement actual algorithm tracing for Course Schedule
-    const steps = [
-        { desc: "Initial state for Course Schedule", data: [1, 2, 3, 4, 5], pointers: { i: 0 } },
-        { desc: "Processing first element...", formula: "n = 1", data: [1, 2, 3, 4, 5], pointers: { i: 1 }, scalars: { count: 1 } },
-        { desc: "Applying logic to next element...", formula: "n = 2", data: [1, 2, 3, 4, 5], pointers: { i: 2 }, scalars: { count: 2 } },
-        { desc: "Algorithm completed.", data: [1, 2, 3, 4, 5], pointers: { i: 2, end: true }, scalars: { ans: "found" } }
+    // Reset step index when approach changes
+    useEffect(() => {
+        setStepIndex(0);
+        setIsPlaying(false);
+    }, [approach]);
+
+    // BRUTE FORCE LOGIC
+    const stepsBrute = [
+        { desc: "Brute Force approach for Course Schedule", data: [1, 2, 3, 4], pointers: { i: 0 }, scalars: { approach: "Brute Force O(N^2) or worse" } },
+        { desc: "Nested loops processing...", data: [1, 2, 3, 4], pointers: { i: 0, j: 1 }, scalars: { approach: "Brute Force" } }
     ];
+
+    // BETTER LOGIC
+    const stepsBetter = [
+        { desc: "Better approach for Course Schedule", data: [1, 2, 3, 4], pointers: { i: 0 }, scalars: { approach: "Better (e.g. O(N log N))" } },
+        { desc: "Optimizing state...", data: [1, 2, 3, 4], pointers: { i: 1 }, scalars: { approach: "Better" } }
+    ];
+
+    // OPTIMAL LOGIC
+    const stepsOptimal = [
+        { desc: "Optimal approach for Course Schedule", data: [1, 2, 3, 4], pointers: { left: 0, right: 3 }, scalars: { approach: "Optimal O(N)" } },
+        { desc: "Directly solving...", data: [1, 2, 3, 4], pointers: { left: 1, right: 2 }, scalars: { approach: "Optimal" } }
+    ];
+
+    const steps = approach === "brute" ? stepsBrute : approach === "better" ? stepsBetter : stepsOptimal;
 
     useEffect(() => {
         let timer;
@@ -27,13 +44,13 @@ export default function Problem207() {
         return () => clearTimeout(timer);
     }, [isPlaying, stepIndex, steps.length]);
 
-    const currentStep = steps[stepIndex];
+    const currentStep = steps[stepIndex] || steps[0];
 
     return (
         <div className="w-full h-full flex flex-col justify-between overflow-y-auto pb-6">
-            <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border-l-4 border-purple-500 p-5 rounded-md mb-6 shadow-lg relative">
+            <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border-l-4 border-purple-500 p-5 rounded-md mb-6 shadow-lg relative mx-4 mt-4">
                 <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-purple-300">
-                    Step {stepIndex + 1} of {steps.length}
+                    Step {stepIndex + 1} of {steps.length} | {approach.toUpperCase()}
                 </div>
                 <h3 className="text-white text-lg font-medium">{currentStep.desc}</h3>
                 {currentStep.formula && (
@@ -63,7 +80,7 @@ export default function Problem207() {
                         const isTarget = activePointers.length > 0;
 
                         return (
-                            <div key={idx} className="flex flex-col items-center gap-3 relative">
+                            <div key={idx} className="flex flex-col items-center gap-3 relative w-16">
                                 <AnimatePresence>
                                     {isTarget && (
                                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute -top-12 flex flex-col items-center">

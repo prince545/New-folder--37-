@@ -2,12 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 
-export default function Problem560() {
+export default function Problem560({ approach = "optimal" }) {
     const [stepIndex, setStepIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // Hardcoded logic for Subarray Sum Equals K (nums = [3, 4, 7, 2, -3, 1, 4, 2], k = 7)
-    const steps = [
+    // Reset step index when approach changes
+    useEffect(() => {
+        setStepIndex(0);
+        setIsPlaying(false);
+    }, [approach]);
+
+    // BRUTE FORCE LOGIC (O(N^3) or O(N^2))
+    const stepsBrute = [
+        {
+            desc: "Brute Force O(N^2) Approach: We use two nested loops to check all possible subarrays. i marks the start, j traverses to the end.",
+            formula: "k = 7",
+            data: [3, 4, 7, 2, -3, 1, 4, 2],
+            pointers: { i: 0 },
+            scalars: { approach: "Brute Force O(N^2)" }
+        },
+        {
+            desc: "For each starting element i, we keep adding elements with j and checking if sum == k.",
+            formula: "sum = 3 + 4 = 7 (Found!)",
+            data: [3, 4, 7, 2, -3, 1, 4, 2],
+            pointers: { i: 0, j: 1 },
+            scalars: { sum: 7, count: 1 }
+        }
+    ];
+
+    // BETTER LOGIC (Prefix Sum Array - O(N^2))
+    const stepsBetter = [
+        {
+            desc: "Better Approach O(N^2): We precompute a prefix sum array. Then check all pairs.",
+            formula: "prefix[i] - prefix[j] == k",
+            data: [3, 4, 7, 2, -3, 1, 4, 2],
+            pointers: { i: 0 },
+            scalars: { approach: "Better (Prefix Array)" }
+        }
+    ];
+
+    // OPTIMAL LOGIC (Prefix Map - O(N))
+    const stepsOptimal = [
         {
             desc: "Initial State: We want to find continuous subarrays that sum to k=7. We initialize a running sum and a prefixMap with {0: 1} to handle subarrays starting at index 0.",
             formula: "k = 7",
@@ -74,6 +109,8 @@ export default function Problem560() {
         }
     ];
 
+    const steps = approach === "brute" ? stepsBrute : approach === "better" ? stepsBetter : stepsOptimal;
+
     useEffect(() => {
         let timer;
         if (isPlaying && stepIndex < steps.length - 1) {
@@ -91,8 +128,8 @@ export default function Problem560() {
     return (
         <div className="w-full h-full flex flex-col justify-between overflow-y-auto pb-6">
             <div className="bg-gradient-to-r from-blue-900/30 to-teal-900/30 border-l-4 border-teal-500 p-5 rounded-md mb-6 shadow-lg relative mx-4 mt-4">
-                <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-teal-300">
-                    Step {stepIndex + 1} of {steps.length}
+                <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-teal-300 uppercase">
+                    Step {stepIndex + 1} of {steps.length} | {approach}
                 </div>
                 <h3 className="text-white text-lg font-medium leading-relaxed">{currentStep.desc}</h3>
                 {currentStep.formula && (
