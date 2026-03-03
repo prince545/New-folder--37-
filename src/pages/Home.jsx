@@ -4,7 +4,7 @@ import {
     BrainCircuit, Code2, PlayCircle, Sparkles, TrendingUp,
     BookOpen, Target, Users, Star, Award, ChevronRight,
     Github, Twitter, Linkedin, Zap, Shield, Cpu, Globe,
-    Rocket, GraduationCap, Trophy, BarChart, Layers, GitBranch
+    Rocket, GraduationCap, Trophy, BarChart, Layers, GitBranch, Box
 } from "lucide-react";
 
 import { Badge } from "../components/ui/badge";
@@ -248,70 +248,150 @@ export default function Home() {
     const navigate = useNavigate();
 
     return (
-        <div className="relative overflow-hidden">
-            {/* Background effects */}
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-black">
-                <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.18),transparent_55%)]" />
-                <div className="absolute bottom-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_bottom,rgba(0,0,0,0.16),transparent_55%)]" />
-
-                {/* Animated grid lines */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        <div className="relative min-h-screen overflow-hidden bg-slate-950">
+            {/* Subtle background grid */}
+            <div className="pointer-events-none absolute inset-0 -z-10">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.18),_transparent_55%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:60px_60px] opacity-30" />
             </div>
 
-            <div className="container py-10 md:py-16">
+            <div className="container max-w-6xl py-10 md:py-16">
                 {/* Hero section */}
-                <div className="mx-auto max-w-4xl text-center relative">
-                    {/* Beta badge */}
-                    <Badge
-                        variant="secondary"
-                        className="mx-auto mb-6 w-fit bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 border-white/10 animate-pulse"
-                    >
-                        <Sparkles size={14} className="mr-1 text-yellow-400" />
-                        New: AI-Powered Visual Learning
-                    </Badge>
-
-                    {/* Main heading */}
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 mt-16 font-[Outfit]">
-                        Master DSA with{" "}
-                        <span className="bg-gradient-to-r from-cyan-300 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            AI
-                        </span>
-                    </h1>
-
-                    {/* Subheading */}
-                    <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mt-10">
-                        Stop watching tutorials, start <span className="text-cyan-300">understanding</span>.
-                        Visualize algorithms step-by-step, write real C++ code, and get AI-powered explanations.
-                    </p>
-
-                    {/* CTA buttons */}
-                    <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                        <Button
-                            size="lg"
-                            onClick={() => navigate("/hub")}
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-lg px-8 py-6 h-auto group text-white rounded-full font-bold shadow-[0_0_20px_rgba(192,132,252,0.4)]"
-                        >
-                            Start Learning Free
-                            <Rocket size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <Button
-                            size="lg"
+                <div className="grid gap-10 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.1fr)] items-center">
+                    {/* Left: text */}
+                    <div className="relative">
+                        {/* Tagline badge */}
+                        <Badge
                             variant="outline"
-                            className="border-white/10 bg-white/5 hover:bg-white/10 text-lg px-8 py-6 h-auto rounded-full font-bold backdrop-blur-md text-white"
-                            onClick={() => {
-                                document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
-                            }}
+                            className="mb-4 inline-flex items-center gap-1 rounded-full border-slate-600 bg-slate-900/70 px-3 py-1 text-[11px] font-medium text-slate-200"
                         >
-                            See How It Works
-                            <ChevronRight size={20} className="ml-2" />
-                        </Button>
+                            <Sparkles size={14} className="text-slate-300" />
+                            Structured DSA practice in C++
+                        </Badge>
+
+                        {/* Main heading */}
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 font-[Outfit] text-slate-50">
+                            A focused way to
+                            <span className="block bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+                                get good at DSA
+                            </span>
+                        </h1>
+
+                        {/* Subheading */}
+                        <p className="text-base md:text-lg text-slate-300 max-w-xl leading-relaxed">
+                            Work through a curated set of interview problems in a clean, predictable workspace.
+                            Write C++ solutions, step through your code, and see exactly how each algorithm behaves.
+                        </p>
+
+                        {/* CTA buttons */}
+                        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                            <Button
+                                size="lg"
+                                onClick={() => navigate("/hub")}
+                                className="bg-slate-100 hover:bg-slate-200 text-base px-7 h-11 group text-slate-900 rounded-full font-semibold shadow-sm"
+                            >
+                                Start practicing
+                                <Rocket size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                className="border-slate-600 bg-transparent hover:bg-slate-900/60 text-base px-7 h-11 rounded-full font-semibold text-slate-100"
+                                onClick={() => {
+                                    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+                                }}
+                            >
+                                Explore the workspace
+                                <ChevronRight size={18} className="ml-2" />
+                            </Button>
+                        </div>
+
+                        {/* Trust badges */}
+                        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400 font-medium">
+                            <span className="flex items-center gap-1">
+                                <Zap size={14} className="text-yellow-400" /> No sign-up required
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Shield size={14} className="text-emerald-400" /> Free to use
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Cpu size={14} className="text-cyan-400" /> Judge0-powered C++ runner
+                            </span>
+                        </div>
                     </div>
 
-                    {/* Trust badges */}
-                    <div className="mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground font-medium">
-                        <span className="flex items-center gap-1"><Zap size={14} className="text-yellow-400" /> No credit card</span>
-                        <span className="flex items-center gap-1"><Shield size={14} className="text-green-400" /> Free forever</span>
-                        <span className="flex items-center gap-1"><Cpu size={14} className="text-cyan-400" /> Judge0 powered</span>
+                    {/* Right: product preview */}
+                    <div className="relative">
+                        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-cyan-500/40 via-purple-500/30 to-pink-500/30 blur-2xl opacity-70" />
+                        <Card className="relative bg-slate-900/80 border-slate-700/70 rounded-2xl shadow-2xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                                    <CardTitle className="text-sm font-semibold text-slate-100">
+                                        Workspace · Two Sum.cpp
+                                    </CardTitle>
+                                </div>
+                                <Badge variant="outline" className="border-cyan-500/40 text-[10px] text-cyan-200 bg-cyan-500/10">
+                                    Live visualizer
+                                </Badge>
+                            </CardHeader>
+                            <CardContent className="grid gap-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+                                {/* Mini code editor */}
+                                <div className="rounded-lg border border-slate-700/70 bg-slate-950/70 p-3">
+                                    <div className="mb-2 flex items-center justify-between text-[10px] text-slate-400">
+                                        <span className="px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-200">C++ · Sliding Window</span>
+                                        <span className="flex items-center gap-1 text-emerald-300">
+                                            <PlayCircle size={12} /> Visualize
+                                        </span>
+                                    </div>
+                                    <pre className="text-[11px] leading-5 font-mono text-slate-100 overflow-hidden">
+{`int lengthOfLongestSubstring(string s) {
+    vector<int> last(256, -1);
+    int left = 0, best = 0;
+
+    for (int right = 0; right < s.size(); right++) {
+        if (last[s[right]] >= left)
+            left = last[s[right]] + 1;
+        last[s[right]] = right;
+        best = max(best, right - left + 1);
+    }
+    return best;
+}`}
+                                    </pre>
+                                </div>
+
+                                {/* Mini visualizer */}
+                                <div className="rounded-lg border border-slate-700/70 bg-gradient-to-br from-slate-900 to-slate-950 p-3 flex flex-col gap-3">
+                                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                                        <span className="flex items-center gap-1">
+                                            <Box className="h-3 w-3 text-cyan-300" /> Step 3 / 8
+                                        </span>
+                                        <span className="flex items-center gap-1 text-cyan-300">
+                                            <BarChart size={12} /> O(n) · O(k)
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-1 justify-between text-[10px]">
+                                        {["a", "b", "c", "a", "b", "b"].map((ch, i) => (
+                                            <div
+                                                key={i}
+                                                className={`flex-1 rounded-md py-1 text-center border text-slate-100 ${
+                                                    i === 1 || i === 2
+                                                        ? "border-cyan-400/70 bg-cyan-500/20"
+                                                        : "border-slate-700 bg-slate-900"
+                                                }`}
+                                            >
+                                                {ch}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="text-[11px] text-slate-300 bg-slate-900/80 rounded-md px-2 py-2">
+                                        <span className="font-semibold text-cyan-300">Step 3:</span>{" "}
+                                        We extend the window while all characters are unique, updating{" "}
+                                        <code className="px-1 py-0.5 bg-slate-800 rounded">best</code> when needed.
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
