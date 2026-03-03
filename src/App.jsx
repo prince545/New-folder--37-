@@ -5,6 +5,7 @@ import TopNav from "./components/app/TopNav.jsx";
 import Home from "./pages/Home.jsx";
 import Workspace from "./pages/Workspace.jsx";
 import LearningHub from "./pages/LearningHub.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/hub" element={<LearningHub />} />
             <Route path="/workspace" element={<Workspace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>

@@ -63,6 +63,34 @@ class GeminiService {
         }
     }
 
+    async generateWithContents(contents, options = {}) {
+        const { temperature = 0.2, maxRetries = 3 } = options;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents,
+                        generationConfig: { temperature }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(`Gemini API Error: ${data.error.message}`);
+                }
+
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                if (attempt === maxRetries) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            }
+        }
+    }
+
     async generateSteps(code, problemTitle, approach, complexity) {
         const prompt = `You are an expert algorithm teacher. Create a step-by-step visualization for:
 Problem: ${problemTitle}
@@ -90,15 +118,15 @@ Return ONLY valid JSON array. Format:
     }
 
     parseJSONResponse(text) {
-        // Clean and parse JSON response
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) throw new Error("No valid JSON array found in response");
+        const arrayMatch = text.match(/\[[\s\S]*\]/);
+        const objectMatch = text.match(/\{[\s\S]*\}/);
+        const jsonString = (arrayMatch && arrayMatch[0]) || (objectMatch && objectMatch[0]);
+        if (!jsonString) throw new Error("No valid JSON found in response");
 
         try {
-            return JSON.parse(jsonMatch[0]);
+            return JSON.parse(jsonString);
         } catch (e) {
-            // Attempt to fix common JSON issues
-            const cleaned = jsonMatch[0]
+            const cleaned = jsonString
                 .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":') // Fix unquoted keys
                 .replace(/,\s*}/g, '}') // Remove trailing commas
                 .replace(/,\s*\]/g, ']'); // Remove trailing commas in arrays
@@ -149,6 +177,102 @@ Analyze:
 Focus on teaching, not just fixing.`;
 
         return this.generate(prompt, { temperature: 0.4 });
+    }
+}
+
+// Enhanced GeminiService with more capabilities
+class EnhancedGeminiService extends GeminiService {
+    constructor(apiKey) {
+        super(apiKey);
+        this.conversationHistory = [];
+        this.cache = new Map();
+    }
+
+    // Code review with best practices
+    async codeReview(code, language = 'cpp') {
+        const prompt = `Perform a comprehensive code review:
+
+${code}
+
+Analyze:
+1. 🔒 **Security Vulnerabilities** (buffer overflows, integer overflows, etc.)
+2. ⚡ **Performance Bottlenecks** (unnecessary copies, inefficient loops)
+3. 🎯 **Best Practices** (RAII, const correctness, modern C++ features)
+4. 📚 **Memory Management** (leaks, dangling pointers)
+5. 🔧 **Refactoring Suggestions**
+
+Provide code examples for each issue found.`;
+
+        return this.generate(prompt, { temperature: 0.3 });
+    }
+
+    // Generate test cases
+    async generateTestCases(code, problemTitle) {
+        const prompt = `Generate comprehensive test cases for:
+
+${problemTitle}
+Code: ${code}
+
+Create:
+1. ✅ **Basic Cases** (simple inputs)
+2. 🔄 **Edge Cases** (empty, single element, duplicates)
+3. ⚠️ **Corner Cases** (max constraints, negative numbers)
+4. 🎲 **Random Cases** (for stress testing)
+
+Format as JSON with input, expected output, and description.`;
+
+        const response = await this.generate(prompt);
+        return this.parseJSONResponse(response);
+    }
+
+    // Interactive tutoring
+    async tutorSession(question, code, problemContext) {
+        const context = this.conversationHistory.slice(-5);
+
+        const prompt = `You're a patient coding tutor. Previous conversation:
+${context.join('\n')}
+
+Student question: "${question}"
+Current code: ${code}
+Problem: ${problemContext}
+
+Provide:
+1. 🤔 **Understanding the question** (rephrase if needed)
+2. 💡 **Hint without giving answer** (Socratic method)
+3. 🔍 **Guide to discover solution**
+4. ✅ **Only if stuck, provide minimal code**`;
+
+        const response = await this.generate(prompt, { temperature: 0.7 });
+        this.conversationHistory.push(`Q: ${question}`, `A: ${response}`);
+        return response;
+    }
+
+    // Complexity visualizer
+    async analyzeComplexity(code) {
+        const prompt = `Analyze time and space complexity with visualization:
+
+${code}
+
+Return JSON:
+{
+  "time": {
+    "best": "O(1)",
+    "average": "O(n)",
+    "worst": "O(n²)",
+    "explanation": "Because...",
+    "visualization": "n^2" // Desmos-style formula
+  },
+  "space": {
+    "complexity": "O(n)",
+    "breakdown": {
+      "variables": "O(1)",
+      "auxiliary": "O(n)"
+    }
+  },
+  "optimizations": ["Use hash map", "Two-pointer technique"]
+}`;
+
+        return this.parseJSONResponse(await this.generate(prompt));
     }
 }
 
@@ -211,7 +335,76 @@ const CodeSnippet = ({ code, language = "cpp" }) => {
     );
 };
 
-const VisualizerControls = ({ steps, currentStep, onStepChange, onPlay, isPlaying }) => {
+const AiChatPanel = ({ messages, input, setInput, onSend, isThinking, endRef }) => {
+    return (
+        <div className="flex flex-col gap-3 h-full min-h-0">
+            <div className="flex-1 min-h-0 space-y-2 overflow-auto pr-1">
+                {messages.length === 0 && (
+                    <div className="text-xs text-muted-foreground">
+                        Ask a question about your code, edge cases, complexity, or the next step to try.
+                    </div>
+                )}
+
+                {messages.map((m, idx) => (
+                    <div
+                        key={idx}
+                        className={`rounded-lg border border-white/10 p-2 ${m.role === "user" ? "bg-white/5" : "bg-black/30"}`}
+                    >
+                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                            {m.role === "user" ? "You" : "AI"}
+                        </div>
+                        <div className="text-xs prose prose-invert max-w-none">
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                    code({ inline, className, children, ...props }) {
+                                        return !inline ? (
+                                            <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
+                                                <code className={className} {...props}>
+                                                    {children}
+                                                </code>
+                                            </pre>
+                                        ) : (
+                                            <code className="bg-black/40 px-1.5 py-0.5 rounded text-[0.7rem]" {...props}>
+                                                {children}
+                                            </code>
+                                        );
+                                    },
+                                }}
+                            >
+                                {m.content || ""}
+                            </ReactMarkdown>
+                        </div>
+                    </div>
+                ))}
+
+                {isThinking && (
+                    <div className="text-xs text-muted-foreground">🧠 Thinking...</div>
+                )}
+
+                <div ref={endRef} />
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") onSend();
+                    }}
+                    placeholder="Ask the AI…"
+                    className="bg-white/5 border-white/10"
+                    disabled={isThinking}
+                />
+                <Button onClick={onSend} disabled={isThinking || !input.trim()}>
+                    Send
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+const VisualizerControls = ({ steps, currentStep, onStepChange, onPlay, isPlaying, speed, onSpeedChange }) => {
     return (
         <div className="flex items-center gap-2 mt-2 p-2 bg-black/20 rounded-lg">
             <Button variant="ghost" size="sm" onClick={() => onStepChange(currentStep - 1)} disabled={currentStep === 0}>
@@ -231,6 +424,20 @@ const VisualizerControls = ({ steps, currentStep, onStepChange, onPlay, isPlayin
             </Button>
 
             <Progress value={(currentStep / (steps.length - 1)) * 100} className="flex-1 h-1" />
+
+            <div className="flex items-center gap-2 pl-2">
+                <span className="text-[11px] text-muted-foreground whitespace-nowrap">Speed</span>
+                <div className="w-20 sm:w-24">
+                    <Slider
+                        value={[speed]}
+                        min={0.5}
+                        max={3}
+                        step={0.5}
+                        onValueChange={(v) => onSpeedChange(v?.[0] ?? 1)}
+                    />
+                </div>
+                <span className="text-[11px] w-10 text-right tabular-nums">{speed}x</span>
+            </div>
         </div>
     );
 };
@@ -254,15 +461,20 @@ export default function Workspace() {
     const [visualizerSteps, setVisualizerSteps] = useState(null);
     const [visualizerError, setVisualizerError] = useState("");
     const [aiAssistantOutput, setAiAssistantOutput] = useState("");
+    const [aiMessages, setAiMessages] = useState([]);
+    const [aiInput, setAiInput] = useState("");
     const [isAiThinking, setIsAiThinking] = useState(false);
     const [editorTab, setEditorTab] = useState("terminal");
     const [notepadText, setNotepadText] = useState("");
     const aiOutputRef = useRef(null);
+    const aiEndRef = useRef(null);
     const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") === "visualizer" ? "visualizer" : "editor");
     const [showHints, setShowHints] = useState(true);
+    const [showProblemPanel, setShowProblemPanel] = useState(true);
     const [learningMode, setLearningMode] = useState("beginner");
     const [currentStep, setCurrentStep] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [playSpeed, setPlaySpeed] = useState(1);
     const [savedCodes, setSavedCodes] = useState({});
     const [autoSave, setAutoSave] = useState(true);
     const [challengeMode, setChallengeMode] = useState(false);
@@ -274,7 +486,7 @@ export default function Workspace() {
     // Refs
     const editorRef = useRef(null);
     const playIntervalRef = useRef(null);
-    const geminiService = useMemo(() => new GeminiService(geminiKey), [geminiKey]);
+    const geminiService = useMemo(() => new EnhancedGeminiService(geminiKey), [geminiKey]);
 
     // Debounced values
     const [debouncedCode] = useDebounce(code, 1000);
@@ -380,6 +592,7 @@ int main() {
     // Play interval for visualizer
     useEffect(() => {
         if (isPlaying && visualizerSteps) {
+            const intervalMs = Math.max(200, Math.round(1500 / (playSpeed || 1)));
             playIntervalRef.current = setInterval(() => {
                 setCurrentStep(prev => {
                     if (prev >= visualizerSteps.length - 1) {
@@ -388,10 +601,10 @@ int main() {
                     }
                     return prev + 1;
                 });
-            }, 1500);
+            }, intervalMs);
         }
         return () => clearInterval(playIntervalRef.current);
-    }, [isPlaying, visualizerSteps]);
+    }, [isPlaying, visualizerSteps, playSpeed]);
 
     const handleRunCode = async () => {
         setIsCompiling(true);
@@ -467,17 +680,22 @@ int main() {
             const variant = variantOverride || aiApproach;
             const variantLabel = variant === "brute" ? "Brute Force" : (variant === "better" ? "Better" : "Optimal");
             let response;
+            let userMessageForHistory = "";
             switch (actionType) {
                 case 'hint':
+                    userMessageForHistory = "Give me a hint (without full solution).";
                     response = await geminiService.getHint(code, problem.title);
                     break;
                 case 'explain':
+                    userMessageForHistory = "Explain my solution and its complexity.";
                     response = await geminiService.explainCode(code, problem.title);
                     break;
                 case 'debug':
+                    userMessageForHistory = "Debug my solution and point out issues.";
                     response = await geminiService.debugCode(code, problem.title);
                     break;
                 case 'algorithm':
+                    userMessageForHistory = `Write the algorithm in 5 steps (${variantLabel}).`;
                     response = await geminiService.generate(
                         `You are an expert algorithm teacher.
 Create an algorithm for the problem "${problem.title}" based on the user's CURRENT solution and approach.
@@ -495,6 +713,7 @@ Rules:
                     );
                     break;
                 case 'pseudocode':
+                    userMessageForHistory = `Write pseudocode (${variantLabel}).`;
                     response = await geminiService.generate(
                         `Write clear pseudocode for the problem "${problem.title}" using the ${variantLabel} approach.
 
@@ -515,6 +734,7 @@ Rules:
                     );
                     break;
                 case 'solution':
+                    userMessageForHistory = "Provide brute/better/optimal C++ solutions.";
                     response = await geminiService.generate(
                         `Provide the C++17 code implementation for ${problem.title}. 
 Use ONLY C++ in your answer (no Java, Python, or other languages).
@@ -529,20 +749,82 @@ Avoid long theory; focus on clean, idiomatic C++.`
                     );
                     break;
                 default:
+                    userMessageForHistory = `Action: ${actionType}`;
                     response = "Unknown action";
             }
 
             setAiAssistantOutput(response);
+            setAiMessages((prev) => ([
+                ...prev,
+                { role: "user", content: userMessageForHistory },
+                { role: "assistant", content: response }
+            ]));
             updateProgress(`ai_${actionType}`, true);
 
             // Auto scroll to AI output
             setTimeout(() => {
-                aiOutputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                aiEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
             }, 100);
         } catch (err) {
             setAiAssistantOutput(`❌ Error: ${err.message}`);
+            setAiMessages((prev) => ([...prev, { role: "assistant", content: `❌ Error: ${err.message}` }]));
         }
         setIsAiThinking(false);
+    };
+
+    const handleAiChatSend = async () => {
+        const text = aiInput.trim();
+        if (!text) return;
+        if (!geminiKey) {
+            setEditorTab("ai");
+            setAiAssistantOutput("🔑 Please enter your Gemini API Key first!");
+            return;
+        }
+
+        setEditorTab("ai");
+        setIsAiThinking(true);
+        setAiInput("");
+
+        const nextMessages = [...aiMessages, { role: "user", content: text }];
+        setAiMessages(nextMessages);
+
+        try {
+            const systemContext = `You are a patient DSA tutor helping a student solve a coding problem.
+Problem: ${problem.title}
+Category: ${problem.category || "N/A"}
+Difficulty: ${problem.difficulty || "N/A"}
+Note: ${problem.note || "N/A"}
+Current approach focus: ${approach}
+User code (C++):
+${code}
+
+Rules:
+- Ask clarifying questions if needed.
+- Prefer hints and reasoning over full solutions unless explicitly requested.
+- Keep answers structured and concise.`;
+
+            const contents = [
+                { role: "user", parts: [{ text: systemContext }] },
+                ...nextMessages.slice(-12).map((m) => ({
+                    role: m.role === "assistant" ? "model" : "user",
+                    parts: [{ text: m.content }]
+                }))
+            ];
+
+            const reply = await geminiService.generateWithContents(contents, { temperature: 0.7 });
+            setAiAssistantOutput(reply);
+            setAiMessages((prev) => ([...prev, { role: "assistant", content: reply }]));
+
+            setTimeout(() => {
+                aiEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        } catch (err) {
+            const msg = `❌ Error: ${err.message}`;
+            setAiAssistantOutput(msg);
+            setAiMessages((prev) => ([...prev, { role: "assistant", content: msg }]));
+        } finally {
+            setIsAiThinking(false);
+        }
     };
 
     const handleSaveCode = () => {
@@ -603,6 +885,14 @@ Avoid long theory; focus on clean, idiomatic C++.`
     }[problem.difficulty];
 
     const hasCompiled = Boolean(userProgress?.compiled);
+
+    const leetcodeUrl = useMemo(() => {
+        const slug = (problem?.title || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+        return slug ? `https://leetcode.com/problems/${slug}` : "https://leetcode.com/problemset/";
+    }, [problem?.title]);
 
     return (
         <TooltipProvider>
@@ -744,6 +1034,55 @@ Avoid long theory; focus on clean, idiomatic C++.`
                         </Alert>
                     )}
 
+                    {/* Problem Panel */}
+                    <Card className="bg-white/5 border-white/10">
+                        <CardHeader className="py-3">
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 text-sm font-semibold">
+                                    <Target size={16} className="text-cyan-300" />
+                                    Problem
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8"
+                                        onClick={() => setShowProblemPanel((v) => !v)}
+                                    >
+                                        {showProblemPanel ? "Hide" : "Show"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        {showProblemPanel && (
+                            <CardContent className="pt-0 text-sm">
+                                <div className="grid gap-2 md:grid-cols-2">
+                                    <div>
+                                        <span className="text-muted-foreground">Category:</span>{" "}
+                                        <span className="text-foreground">{problem.category || "—"}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-muted-foreground">Source:</span>{" "}
+                                        <a
+                                            href={leetcodeUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-cyan-300 hover:underline"
+                                        >
+                                            Open on LeetCode
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {problem.note && (
+                                    <div className="mt-3 text-muted-foreground text-sm">
+                                        <span className="text-foreground font-medium">Note:</span> {problem.note}
+                                    </div>
+                                )}
+                            </CardContent>
+                        )}
+                    </Card>
+
                     {/* Main Content */}
                     <div className="md:hidden">
                         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -845,39 +1184,27 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-2 border border-white/10 bg-black/40 rounded-lg p-3 min-h-[150px] max-h-[200px] overflow-auto">
+                                                <div className="mt-2 border border-white/10 bg-black/40 rounded-lg p-3 min-h-[150px] max-h-[200px] overflow-hidden flex flex-col">
                                                     {editorTab === "terminal" && (
-                                                        <pre className="text-xs text-emerald-200/90 whitespace-pre-wrap">{output}</pre>
+                                                        <div className="flex-1 min-h-0 overflow-auto">
+                                                            <pre className="text-xs text-emerald-200/90 whitespace-pre-wrap">{output}</pre>
+                                                        </div>
                                                     )}
                                                     {editorTab === "ai" && (
-                                                        <div className="text-xs prose prose-invert max-w-none">
-                                                            <ReactMarkdown
-                                                                remarkPlugins={[remarkGfm]}
-                                                                components={{
-                                                                    code({ inline, className, children, ...props }) {
-                                                                        return !inline ? (
-                                                                            <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
-                                                                                <code className={className} {...props}>
-                                                                                    {children}
-                                                                                </code>
-                                                                            </pre>
-                                                                        ) : (
-                                                                            <code className="bg-black/40 px-1.5 py-0.5 rounded text-[0.7rem]" {...props}>
-                                                                                {children}
-                                                                            </code>
-                                                                        );
-                                                                    },
-                                                                }}
-                                                            >
-                                                                {aiAssistantOutput || ""}
-                                                            </ReactMarkdown>
-                                                        </div>
+                                                        <AiChatPanel
+                                                            messages={aiMessages}
+                                                            input={aiInput}
+                                                            setInput={setAiInput}
+                                                            onSend={handleAiChatSend}
+                                                            isThinking={isAiThinking}
+                                                            endRef={aiEndRef}
+                                                        />
                                                     )}
                                                     {editorTab === "notepad" && (
                                                         <textarea
                                                             value={notepadText}
                                                             onChange={(e) => setNotepadText(e.target.value)}
-                                                            className="w-full h-full bg-transparent border-none text-xs resize-none focus:outline-none"
+                                                            className="w-full flex-1 min-h-0 bg-transparent border-none text-xs resize-none focus:outline-none"
                                                             placeholder="📝 Your notes, ideas, and observations..."
                                                         />
                                                     )}
@@ -932,6 +1259,8 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                             onStepChange={setCurrentStep}
                                                             onPlay={() => setIsPlaying(!isPlaying)}
                                                             isPlaying={isPlaying}
+                                                            speed={playSpeed}
+                                                            onSpeedChange={setPlaySpeed}
                                                         />
                                                     </>
                                                 ) : visualizerError ? (
@@ -1073,33 +1402,21 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                 </Button>
                                             </div>
                                         </div>
-                                        <div className="flex-1 p-3 overflow-auto">
+                                        <div className="flex-1 p-3 overflow-hidden">
                                             {editorTab === "terminal" && (
-                                                <pre className="text-xs text-emerald-200/90 whitespace-pre-wrap">{output}</pre>
+                                                <div className="h-full overflow-auto">
+                                                    <pre className="text-xs text-emerald-200/90 whitespace-pre-wrap">{output}</pre>
+                                                </div>
                                             )}
                                             {editorTab === "ai" && (
-                                                <div className="text-xs prose prose-invert max-w-none">
-                                                    <ReactMarkdown
-                                                        remarkPlugins={[remarkGfm]}
-                                                        components={{
-                                                            code({ inline, className, children, ...props }) {
-                                                                return !inline ? (
-                                                                    <pre className="bg-black/60 p-3 rounded-md overflow-x-auto text-[0.7rem]">
-                                                                        <code className={className} {...props}>
-                                                                            {children}
-                                                                        </code>
-                                                                    </pre>
-                                                                ) : (
-                                                                    <code className="bg-black/40 px-1.5 py-0.5 rounded text-[0.7rem]" {...props}>
-                                                                        {children}
-                                                                    </code>
-                                                                );
-                                                            },
-                                                        }}
-                                                    >
-                                                        {aiAssistantOutput || "👋 Ask me anything about your code!"}
-                                                    </ReactMarkdown>
-                                                </div>
+                                                <AiChatPanel
+                                                    messages={aiMessages}
+                                                    input={aiInput}
+                                                    setInput={setAiInput}
+                                                    onSend={handleAiChatSend}
+                                                    isThinking={isAiThinking}
+                                                    endRef={aiEndRef}
+                                                />
                                             )}
                                             {editorTab === "notepad" && (
                                                 <textarea
@@ -1162,6 +1479,8 @@ Avoid long theory; focus on clean, idiomatic C++.`
                                                     onStepChange={setCurrentStep}
                                                     onPlay={() => setIsPlaying(!isPlaying)}
                                                     isPlaying={isPlaying}
+                                                    speed={playSpeed}
+                                                    onSpeedChange={setPlaySpeed}
                                                 />
                                             </div>
                                         ) : visualizerError ? (
