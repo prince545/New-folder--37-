@@ -747,8 +747,14 @@ export default function LearningHub() {
                         LeetCode
                       </a>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      Tutorial
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <a
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(problem.title + " leetcode solution")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        🎬 Tutorial
+                      </a>
                     </Button>
                   </div>
 
