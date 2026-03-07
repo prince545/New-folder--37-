@@ -1,379 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, Info } from "lucide-react";
+import { useState } from "react";
 
-const CHART_PX = 260;
+const btnStyle = { background: "#4f46e5", color: "#e2e8f0", border: "none", borderRadius: 7, padding: "6px 14px", cursor: "pointer", fontSize: 12, fontFamily: "monospace" };
 
-function clamp(n, min, max) {
-    return Math.max(min, Math.min(max, n));
-}
+export default function KokoEatingBananas({ approach = "optimal" }) {
+    const piles = [3, 6, 7, 11];
+    const H = 8;
+    const [step, setStep] = useState(0);
+    const steps = [];
+    let lo = 1, hi = Math.max(...piles);
 
-// Problem: Koko Eating Bananas (LeetCode 875)
-// Pattern: Binary Search on Answer
-// Difficulty: Medium
-// Theme: Binary search on value
-
-const VISUALIZATION_STEPS = [
-    {
-        "desc": "Testing eating speed = 1 bananas/hour",
-        "formula": "Total hours = 27, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 0
-        },
-        "scalars": {
-            "speed": 1,
-            "totalHours": 27,
-            "feasible": "✗"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 1 bananas/hour",
-        "formula": "Total hours = 27, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 1
-        },
-        "scalars": {
-            "speed": 1,
-            "totalHours": 27,
-            "feasible": "✗"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 3 bananas/hour",
-        "formula": "Total hours = 10, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 2
-        },
-        "scalars": {
-            "speed": 3,
-            "totalHours": 10,
-            "feasible": "✗"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 5 bananas/hour",
-        "formula": "Total hours = 8, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 3
-        },
-        "scalars": {
-            "speed": 5,
-            "totalHours": 8,
-            "feasible": "✓"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 7 bananas/hour",
-        "formula": "Total hours = 5, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 4
-        },
-        "scalars": {
-            "speed": 7,
-            "totalHours": 5,
-            "feasible": "✓"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 9 bananas/hour",
-        "formula": "Total hours = 5, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 5
-        },
-        "scalars": {
-            "speed": 9,
-            "totalHours": 5,
-            "feasible": "✓"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 11 bananas/hour",
-        "formula": "Total hours = 4, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 6
-        },
-        "scalars": {
-            "speed": 11,
-            "totalHours": 4,
-            "feasible": "✓"
-        }
-    },
-    {
-        "desc": "Testing eating speed = 13 bananas/hour",
-        "formula": "Total hours = 4, target hours = 8",
-        "data": [
-            3,
-            6,
-            7,
-            11
-        ],
-        "pointers": {
-            "i": 7
-        },
-        "scalars": {
-            "speed": 13,
-            "totalHours": 4,
-            "feasible": "✓"
-        }
+    while (lo < hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        let days = 0;
+        for (const p of piles) days += Math.ceil(p / mid);
+        const feasible = days <= H;
+        steps.push({ lo, hi, mid, days, feasible, action: feasible ? `speed=${mid}: days=${days} ≤ H=${H} → feasible, try slower → hi=mid` : `speed=${mid}: days=${days} > H=${H} → too slow → lo=mid+1` });
+        if (feasible) hi = mid; else lo = mid + 1;
     }
-];
+    steps.push({ lo, hi, mid: lo, done: true, action: `✓ Minimum speed = ${lo} bananas/hour` });
 
-export default function KokoEatingBananas() {
-    const [stepIndex, setStepIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [speedMs, setSpeedMs] = useState(1200);
-    const [showInfo, setShowInfo] = useState(true);
-
-    const maxIndex = VISUALIZATION_STEPS.length - 1;
-    const currentStep = VISUALIZATION_STEPS[stepIndex] || VISUALIZATION_STEPS[0];
-    const maxValue = Math.max(...currentStep.data.filter(v => typeof v === 'number'));
-
-    useEffect(() => {
-        let timer;
-        if (isPlaying && stepIndex < maxIndex) {
-            timer = setTimeout(() => setStepIndex(s => s + 1), speedMs);
-        } else if (stepIndex >= maxIndex) {
-            setIsPlaying(false);
-        }
-        return () => clearTimeout(timer);
-    }, [isPlaying, stepIndex, maxIndex, speedMs]);
-
-    const renderData = () => {
-        return (
-            <div className="flex items-end justify-center gap-2 overflow-x-auto py-4">
-                {currentStep.data.map((val, idx) => {
-                    const isActive = Object.values(currentStep.pointers || {}).includes(idx);
-                    const pointerName = Object.keys(currentStep.pointers || {}).find(key => currentStep.pointers[key] === idx);
-                    
-                    return (
-                        <div key={idx} className="flex flex-col items-center">
-                            <div className="relative w-12" style={{ height: CHART_PX }}>
-                                {/* Value bar */}
-                                <motion.div
-                                    animate={{ height: (Math.abs(val) / maxValue) * CHART_PX }}
-                                    transition={{ duration: 0.35 }}
-                                    className={`absolute bottom-0 left-0 right-0 rounded-t-md border ${
-                                        isActive 
-                                            ? "bg-gradient-to-t from-purple-500 to-pink-500 border-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.4)]" 
-                                            : "bg-gradient-to-t from-cyan-500 to-blue-500 border-cyan-300"
-                                    }`}
-                                >
-                                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-white">
-                                        {val}
-                                    </div>
-                                </motion.div>
-
-                                {/* Pointer indicator */}
-                                <AnimatePresence>
-                                    {isActive && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            className="absolute -top-12 left-1/2 -translate-x-1/2"
-                                        >
-                                            <div className="bg-pink-500 text-white px-2 py-1 rounded text-xs font-bold whitespace-nowrap">
-                                                {pointerName} ↑
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                            <span className="mt-2 text-xs text-gray-400 font-mono">{idx}</span>
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    };
+    const s = steps[Math.min(step, steps.length - 1)] || steps[0];
 
     return (
-        <div className="w-full h-full flex flex-col justify-between overflow-y-auto pb-6">
-            {/* Info Panel */}
-            <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-l-4 border-blue-400 p-5 rounded-md mb-6 shadow-lg relative mx-4 mt-4">
-                <div className="absolute -top-3 left-4 bg-[#0B0C10] px-2 text-xs font-bold text-blue-300">
-                    Step {stepIndex + 1} of {VISUALIZATION_STEPS.length}
-                </div>
-                
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h3 className="text-white text-lg font-medium leading-relaxed pr-8">
-                            {currentStep.desc}
-                        </h3>
-                        
-                        <div className="flex gap-2 mt-2">
-                            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
-                                Binary Search on Answer
-                            </span>
-                            <span className={`text-xs ${
-                                'Medium' === 'Easy' ? 'bg-green-500/20 text-green-300' :
-                                'Medium' === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                                'bg-red-500/20 text-red-300'
-                            } px-2 py-1 rounded`}>
-                                Medium
-                            </span>
-                        </div>
+        <div style={{ fontFamily: "monospace" }}>
+            <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 12 }}>
+                Piles: [{piles.join(", ")}] H={H} hours. Find minimum speed k bananas/hr.
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "flex-end" }}>
+                {piles.map((p, i) => (
+                    <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                        <div style={{ fontSize: 11, color: "#64748b" }}>🍌×{p}</div>
+                        <div style={{ width: 44, height: `${(p / 11) * 70}px`, background: "#1e3a5f", border: "2px solid #3b82f6", borderRadius: "4px 4px 0 0", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 2, fontSize: 13, color: "#60a5fa" }}>{p}</div>
+                        <div style={{ fontSize: 11, color: "#64748b" }}>hrs={s.mid ? Math.ceil(p / s.mid) : "?"}</div>
                     </div>
-                    
-                    <button
-                        onClick={() => setShowInfo(!showInfo)}
-                        className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                    >
-                        <Info size={16} className={showInfo ? "text-cyan-400" : "text-gray-500"} />
-                    </button>
+                ))}
+            </div>
+
+            <div style={{ position: "relative", height: 40, background: "#0f172a", borderRadius: 8, marginBottom: 12, border: "1px solid #334155" }}>
+                <div style={{ position: "absolute", left: `${((s.lo - 1) / hi) * 100}%`, right: `${((hi - s.hi) / hi) * 100}%`, height: "100%", background: "#1e3a5f", borderRadius: 8, transition: "all 0.3s" }} />
+                <div style={{ position: "absolute", left: `${((s.mid - 1) / hi) * 100}%`, width: `${(1 / hi) * 100}%`, height: "100%", background: s.done ? "#14532d" : "#6366f1", transition: "all 0.3s" }} />
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#94a3b8" }}>
+                    lo={s.lo}  mid={s.mid}  hi={s.hi}
                 </div>
-                
-                {showInfo && currentStep.formula && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="mt-4 bg-black/40 border border-white/10 rounded px-4 py-3 font-mono text-pink-300 shadow-inner"
-                    >
-                        {currentStep.formula}
-                    </motion.div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                <span style={{ background: "#1e293b", padding: "4px 10px", borderRadius: 6, fontSize: 13, color: "#94a3b8" }}>days=<span style={{ color: "#fb923c" }}>{s.days}</span></span>
+                {s.feasible !== undefined && (
+                    <span style={{ background: s.feasible ? "#14532d" : "#450a0a", padding: "4px 10px", borderRadius: 6, fontSize: 13, color: s.feasible ? "#4ade80" : "#f87171" }}>
+                        {s.feasible ? "✓ feasible" : "✗ too slow"}
+                    </span>
                 )}
-
-                {/* Scalars Display */}
-                {currentStep.scalars && Object.keys(currentStep.scalars).length > 0 && (
-                    <div className="mt-4 flex gap-3 flex-wrap">
-                        {Object.entries(currentStep.scalars).map(([key, val]) => (
-                            <motion.div 
-                                key={key}
-                                initial={{ scale: 0.9 }}
-                                animate={{ scale: 1 }}
-                                className="bg-black/40 border border-cyan-500/30 px-3 py-2 rounded-lg"
-                            >
-                                <span className="text-cyan-400 text-xs mr-2">{key}:</span>
-                                <span className="text-white font-mono">{String(val)}</span>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Speed Control */}
-                <div className="mt-4 flex items-center gap-4">
-                    <div className="ml-auto flex items-center gap-2">
-                        <span className="text-xs text-white/70">Speed</span>
-                        <select
-                            value={speedMs}
-                            onChange={(e) => setSpeedMs(Number(e.target.value))}
-                            className="rounded-md border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white"
-                        >
-                            <option value={1800}>0.7×</option>
-                            <option value={1200}>1×</option>
-                            <option value={800}>1.5×</option>
-                            <option value={500}>2.4×</option>
-                        </select>
-                    </div>
-                </div>
+                {s.done && <span style={{ background: "#14532d", padding: "4px 10px", borderRadius: 6, fontSize: 13, color: "#4ade80", fontWeight: "bold" }}>Answer = {s.mid}</span>}
             </div>
 
-            {/* Visualization Area */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4">
-                <div className="w-full max-w-5xl rounded-xl border border-white/10 bg-black/20 p-4">
-                    {renderData()}
+            <div style={{ background: "#0f172a", padding: "8px 12px", borderRadius: 8, border: "1px solid #334155", marginBottom: 12, fontSize: 12, color: "#a78bfa" }}>{s.action}</div>
 
-                    {/* Step Scrubber */}
-                    <div className="mt-4 flex items-center gap-3">
-                        <span className="text-xs text-white/60 font-mono">
-                            {stepIndex + 1}/{VISUALIZATION_STEPS.length}
-                        </span>
-                        <input
-                            type="range"
-                            min={0}
-                            max={maxIndex}
-                            value={stepIndex}
-                            onChange={(e) => {
-                                setIsPlaying(false);
-                                setStepIndex(Number(e.target.value));
-                            }}
-                            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                            aria-label="Step scrubber"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Control Buttons */}
-            <div className="mt-4 flex justify-center gap-6 pb-4">
-                <button
-                    className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10"
-                    onClick={() => { setStepIndex(0); setIsPlaying(false); }}
-                >
-                    <RotateCcw size={20} className="text-gray-300" />
-                </button>
-                
-                <button
-                    className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10"
-                    onClick={() => setStepIndex(s => clamp(s - 1, 0, maxIndex))}
-                    disabled={stepIndex === 0}
-                >
-                    <SkipBack size={20} className="text-gray-300" />
-                </button>
-                
-                <button
-                    className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center transition-transform hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                >
-                    {isPlaying ? <Pause size={28} className="text-white" /> : <Play size={28} className="text-white ml-1" />}
-                </button>
-                
-                <button
-                    className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10"
-                    onClick={() => setStepIndex(s => clamp(s + 1, 0, maxIndex))}
-                    disabled={stepIndex === maxIndex}
-                >
-                    <SkipForward size={20} className="text-gray-300" />
-                </button>
-            </div>
-
-            {/* Keyboard Shortcuts */}
-            <div className="text-center text-[10px] text-gray-600">
-                <kbd className="px-1.5 py-0.5 bg-gray-800 rounded">Space</kbd> play/pause · 
-                <kbd className="px-1.5 py-0.5 bg-gray-800 rounded ml-1">←</kbd>/<kbd className="px-1.5 py-0.5 bg-gray-800 rounded">→</kbd> step ·
-                <kbd className="px-1.5 py-0.5 bg-gray-800 rounded ml-1">H</kbd> toggle info
+            <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => setStep(s => Math.max(0, s - 1))} style={btnStyle}>← Prev</button>
+                <button onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))} style={btnStyle}>Next →</button>
+                <button onClick={() => setStep(0)} style={{ ...btnStyle, background: "#1e293b" }}>Reset</button>
+                <span style={{ color: "#64748b", fontSize: 11, alignSelf: "center" }}>{step + 1}/{steps.length}</span>
             </div>
         </div>
     );

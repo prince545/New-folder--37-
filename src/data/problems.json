@@ -208,5 +208,215 @@
         "difficulty": "Hard",
         "category": "Signature Hard Problems",
         "note": "Iconic hard, multiple solutions (two-pointer / stack / prefix)"
+    },
+    {
+        "id": 724,
+        "title": "Find Pivot Index",
+        "difficulty": "Easy",
+        "category": "Prefix Sum / Running Sum",
+        "note": "Clean prefix-sum application, very common easy/medium variant"
+    },
+    {
+        "id": 26,
+        "title": "Remove Duplicates from Sorted Array",
+        "difficulty": "Easy",
+        "category": "Two Pointers (sorted / remove duplicates)",
+        "note": "Classic in-place two-pointer pattern, foundational"
+    },
+    {
+        "id": 209,
+        "title": "Minimum Size Subarray Sum",
+        "difficulty": "Medium",
+        "category": "Sliding Window",
+        "note": "Classic sliding window minimum length problem"
+    },
+    {
+        "id": 503,
+        "title": "Next Greater Element II",
+        "difficulty": "Medium",
+        "category": "Monotonic Stack / Next Greater Element",
+        "note": "Circular array + monotonic stack — great follow-up"
+    },
+    {
+        "id": 32,
+        "title": "Longest Valid Parentheses",
+        "difficulty": "Hard",
+        "category": "Stack / Parentheses",
+        "note": "Hard but very high-signal parentheses problem"
+    },
+    {
+        "id": 153,
+        "title": "Find Minimum in Rotated Sorted Array",
+        "difficulty": "Medium",
+        "category": "Binary Search",
+        "note": "Very clean rotated array minimum — extremely common"
+    },
+    {
+        "id": 1011,
+        "title": "Capacity To Ship Packages Within D Days",
+        "difficulty": "Medium",
+        "category": "Binary Search on Answer",
+        "note": "Classic binary search on answer (very similar signal to Koko)"
+    },
+    {
+        "id": 876,
+        "title": "Middle of the Linked List",
+        "difficulty": "Easy",
+        "category": "Linked List – Basics & Fast-Slow Pointers",
+        "note": "Clean fast-slow pointer application, very frequently asked"
+    },
+    {
+        "id": 92,
+        "title": "Reverse Linked List II",
+        "difficulty": "Medium",
+        "category": "Linked List – Reversal & Reordering",
+        "note": "Reversal between positions — natural next step after #206"
+    },
+    {
+        "id": 143,
+        "title": "Reorder List",
+        "difficulty": "Medium",
+        "category": "Linked List – Advanced",
+        "note": "Combine reversal + fast-slow — good medium-hard signal"
+    },
+    {
+        "id": 124,
+        "title": "Binary Tree Maximum Path Sum",
+        "difficulty": "Hard",
+        "category": "Binary Tree – Traversals & Properties",
+        "note": "Highest-signal tree path problem (appears in almost every list)"
+    },
+    {
+        "id": 199,
+        "title": "Binary Tree Right Side View",
+        "difficulty": "Medium",
+        "category": "Binary Tree – Level Order / BFS",
+        "note": "Clean level-order + last element per level"
+    },
+    {
+        "id": 108,
+        "title": "Convert Sorted Array to Binary Search Tree",
+        "difficulty": "Easy",
+        "category": "Binary Tree – Construction",
+        "note": "Clean sorted → balanced BST construction"
+    },
+    {
+        "id": 230,
+        "title": "Kth Smallest Element in a BST",
+        "difficulty": "Medium",
+        "category": "Binary Search Tree",
+        "note": "Classic in-order + count pattern (very high frequency)"
+    },
+    {
+        "id": 212,
+        "title": "Word Search II",
+        "difficulty": "Hard",
+        "category": "Trie",
+        "note": "Trie + backtracking on board — very strong signal"
+    },
+    {
+        "id": 347,
+        "title": "Top K Frequent Elements",
+        "difficulty": "Medium",
+        "category": "Heap / Priority Queue",
+        "note": "Bucket sort + heap combo — extremely common"
+    },
+    {
+        "id": 480,
+        "title": "Sliding Window Median",
+        "difficulty": "Hard",
+        "category": "Heap – Advanced / Median",
+        "note": "Hard median in window — excellent advanced heap practice"
+    },
+    {
+        "id": 39,
+        "title": "Combination Sum",
+        "difficulty": "Medium",
+        "category": "Backtracking – Subsets & Combinations",
+        "note": "Classic combination sum with reuse — very clean"
+    },
+    {
+        "id": 47,
+        "title": "Permutations II",
+        "difficulty": "Medium",
+        "category": "Backtracking – Permutations",
+        "note": "Duplicates handling — natural extension"
+    },
+    {
+        "id": 37,
+        "title": "Sudoku Solver",
+        "difficulty": "Hard",
+        "category": "Backtracking – N-Queens / Chessboard",
+        "note": "Very high-signal constraint satisfaction problem"
+    },
+    {
+        "id": 133,
+        "title": "Clone Graph",
+        "difficulty": "Medium",
+        "category": "Graph – DFS / Connected Components",
+        "note": "Deep copy via DFS — very common graph question"
+    },
+    {
+        "id": 127,
+        "title": "Word Ladder",
+        "difficulty": "Hard",
+        "category": "Graph – BFS / Shortest Path",
+        "note": "Classic BFS shortest transformation path"
+    },
+    {
+        "id": 210,
+        "title": "Course Schedule II",
+        "difficulty": "Medium",
+        "category": "Topological Sort",
+        "note": "Return the order — natural follow-up to #207"
+    },
+    {
+        "id": 684,
+        "title": "Redundant Connection",
+        "difficulty": "Medium",
+        "category": "Union-Find",
+        "note": "Union-Find cycle detection in undirected graph — clean & common"
+    },
+    {
+        "id": 322,
+        "title": "Coin Change",
+        "difficulty": "Medium",
+        "category": "1D DP",
+        "note": "Classic complete knapsack / unbounded knapsack intro"
+    },
+    {
+        "id": 72,
+        "title": "Edit Distance",
+        "difficulty": "Medium",
+        "category": "2D DP / LCS family",
+        "note": "Core string DP transformation problem"
+    },
+    {
+        "id": 494,
+        "title": "Target Sum",
+        "difficulty": "Medium",
+        "category": "Knapsack / Partition problems",
+        "note": "Classic 0/1 knapsack variant with signs (+/-)"
+    },
+    {
+        "id": 435,
+        "title": "Non-overlapping Intervals",
+        "difficulty": "Medium",
+        "category": "Greedy + Intervals",
+        "note": "Greedy interval removal — very high frequency"
+    },
+    {
+        "id": 421,
+        "title": "Maximum XOR of Two Numbers in an Array",
+        "difficulty": "Medium",
+        "category": "Bit Manipulation",
+        "note": "Trie + bit manipulation — strongest bit pattern"
+    },
+    {
+        "id": 84,
+        "title": "Largest Rectangle in Histogram",
+        "difficulty": "Hard",
+        "category": "Hard / Signature Problems (capstone)",
+        "note": "Monotonic stack masterpiece — iconic hard problem"
     }
 ]
