@@ -3,23 +3,24 @@ import { useState } from "react";
 const btnStyle = { background: "#4f46e5", color: "#e2e8f0", border: "none", borderRadius: 7, padding: "6px 14px", cursor: "pointer", fontSize: 12, fontFamily: "monospace" };
 
 const CODE_LINES = [
-    { line: "def orangesRotting(grid):", active: [] },
-    { line: "  rows, cols = len(grid), len(grid[0])", active: [] },
-    { line: "  queue = deque()", active: [] },
-    { line: "  fresh = 0", active: [] },
-    { line: "  for r,c in all cells:", active: [0] },
-    { line: "    if grid[r][c]==2: queue.append((r,c,0))", active: [0] },
-    { line: "    if grid[r][c]==1: fresh += 1", active: [0] },
-    { line: "  minutes = 0", active: [] },
-    { line: "  while queue:", active: [1, 2, 3, 4, 5] },
-    { line: "    r, c, t = queue.popleft()", active: [1, 2, 3, 4, 5] },
-    { line: "    minutes = max(minutes, t)", active: [1, 2, 3, 4, 5] },
-    { line: "    for dr,dc in directions:", active: [1, 2, 3, 4, 5] },
-    { line: "      nr,nc = r+dr, c+dc", active: [1, 2, 3, 4, 5] },
-    { line: "      if valid and grid[nr][nc]==1:", active: [1, 2, 3, 4, 5] },
-    { line: "        grid[nr][nc]=2; fresh-=1", active: [1, 2, 3, 4, 5] },
-    { line: "        queue.append((nr,nc,t+1))", active: [1, 2, 3, 4, 5] },
-    { line: "  return minutes if fresh==0 else -1", active: [5, 6] },
+    { line: "int orangesRotting(vector<vector<int>>& g) {" },
+    { line: "  int R=g.size(), C=g[0].size();" },
+    { line: "  queue<tuple<int,int,int>> q;" },
+    { line: "  int fresh=0, minutes=0;" },
+    { line: "  for(int r=0;r<R;r++) for(int c=0;c<C;c++)" },
+    { line: "    if(g[r][c]==2) q.push({r,c,0});" },
+    { line: "    else if(g[r][c]==1) fresh++;" },
+    { line: "  int dx[]={0,0,1,-1}, dy[]={1,-1,0,0};" },
+    { line: "  while(!q.empty()) {" },
+    { line: "    auto[r,c,t] = q.front(); q.pop();" },
+    { line: "    minutes = max(minutes, t);" },
+    { line: "    for(int d=0;d<4;d++) {" },
+    { line: "      int nr=r+dx[d], nc=c+dy[d];" },
+    { line: "      if(nr<0||nr>=R||nc<0||nc>=C) continue;" },
+    { line: "      if(g[nr][nc]==1) {" },
+    { line: "        g[nr][nc]=2; fresh--;" },
+    { line: "        q.push({nr,nc,t+1}); }}" },
+    { line: "  return fresh==0 ? minutes : -1; }" },
 ];
 
 export default function RottingOranges({ approach = "optimal" }) {
@@ -123,7 +124,7 @@ export default function RottingOranges({ approach = "optimal" }) {
                 {/* Right: Code panel */}
                 <div style={{ flex: 1, minWidth: 220, background: "#0a0f1e", borderRadius: 10, border: "1px solid #1e3a5f", overflow: "hidden" }}>
                     <div style={{ background: "#0f172a", padding: "5px 12px", fontSize: 11, color: "#475569", borderBottom: "1px solid #1e3a5f" }}>
-                        optimal solution · BFS
+                        C++ · optimal · BFS
                     </div>
                     <div style={{ padding: "6px 0" }}>
                         {CODE_LINES.map((cl, i) => (
